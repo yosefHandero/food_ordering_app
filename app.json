@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "food_delivery_app",
+    "name": "MealHop",
     "slug": "food_delivery_app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fooddeliveryapp",
+    "scheme": "fastfood",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
