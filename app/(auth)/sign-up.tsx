@@ -1,9 +1,9 @@
-import {View, Text, Button, Alert} from 'react-native'
+import {View, Text, Alert} from 'react-native'
 import {Link, router} from "expo-router";
 import CustomButton from "@/components/CustomButton";
 import {useState} from "react";
 import CustomInput from "@/components/CustomImput";
-// import {createUser} from "@/lib/appwrite";
+import {createUser} from "@/lib/appwrite";
 
 const SignUp = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,9 +17,9 @@ const SignUp = () => {
         setIsSubmitting(true)
 
         try {
-            // await createUser({ email,  password,  name });
+            await createUser({ email,  password,  name });
 
-            // router.replace('/');
+            router.replace('/');
         } catch(error: any) {
             Alert.alert('Error', error.message);
         } finally {
@@ -30,22 +30,22 @@ const SignUp = () => {
     return (
         <View className="gap-10 bg-white rounded-lg p-5 mt-5">
             <CustomInput
-                placeholder="Enter your full name"
+                placeholder="Enter your name"
                 value={form.name}
-                // onChangeText={(text) => setForm((prev) => ({ ...prev, name: text }))}
+                onChangeText={(text) => setForm((prev) => ({ ...prev, name: text }))}
                 label="Full name"
             />
             <CustomInput
                 placeholder="Enter your email"
                 value={form.email}
-                // onChangeText={(text) => setForm((prev) => ({ ...prev, email: text }))}
+                onChangeText={(text) => setForm((prev) => ({ ...prev, email: text }))}
                 label="Email"
                 keyboardType="email-address"
             />
             <CustomInput
                 placeholder="Enter your password"
                 value={form.password}
-                // onChangeText={(text) => setForm((prev) => ({ ...prev, password: text }))}
+                onChangeText={(text) => setForm((prev) => ({ ...prev, password: text }))}
                 label="Password"
                 secureTextEntry={true}
             />
