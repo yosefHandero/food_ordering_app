@@ -6,12 +6,12 @@ export const appwriteConfig = {
     projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!,
     platform: "com.rnt.foodordering",
     databaseId: '686d286100187e3e4c16',
-    bucketId: '',
+    bucketId: '686d97e40025b3f74e2b',
     userCollectionId: '686d28890007af8b58a5',
-    categoriesCollectionId: '',
-    menuCollectionId: '',
-    customizationsCollectionId: '',
-    menuCustomizationsCollectionId: ''
+    categoriesCollectionId: '686d5d210008185d7219',
+    menuCollectionId: '686d5e9b002595c7caea',
+    customizationCollectionId: '686d94c000124fa8e422',
+    menuCustomizationsCollectionId: '686d95c30033df464ff3'
 }
 
 export const client = new Client();

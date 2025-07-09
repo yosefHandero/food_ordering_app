@@ -35,15 +35,15 @@ export interface CartItemType {
     price: number;
     image_url: string;
     quantity: number;
-    customizations?: CartCustomization[];
+    customization?: CartCustomization[];
 }
 
 export interface CartStore {
     items: CartItemType[];
     addItem: (item: Omit<CartItemType, "quantity">) => void;
-    removeItem: (id: string, customizations: CartCustomization[]) => void;
-    increaseQty: (id: string, customizations: CartCustomization[]) => void;
-    decreaseQty: (id: string, customizations: CartCustomization[]) => void;
+    removeItem: (id: string, customization: CartCustomization[]) => void;
+    increaseQty: (id: string, customization: CartCustomization[]) => void;
+    decreaseQty: (id: string, customization: CartCustomization[]) => void;
     clearCart: () => void;
     getTotalItems: () => number;
     getTotalPrice: () => number;
