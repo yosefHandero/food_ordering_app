@@ -1,9 +1,9 @@
 import {Account, Avatars, Client, Databases, ID, Query, Storage} from "react-native-appwrite";
 import {CreateUserParams, GetMenuParams, SignInParams} from "@/type";
 import { User } from '@/type';
-
+const endpoint = process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT!;
 export const appwriteConfig = {
-    endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT!,
+    endpoint: endpoint,
     projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!,
     platform: "com.rnt.foodordering",
     databaseId: '686d286100187e3e4c16',
