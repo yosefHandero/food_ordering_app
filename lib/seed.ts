@@ -80,7 +80,7 @@ async function uploadImageToStorage(imageUrl: string) {
 async function seed(): Promise<void> {
     // 1. Clear all
     await clearAll(appwriteConfig.categoriesCollectionId);
-    await clearAll(appwriteConfig.customizationsCollectionId);
+    await clearAll(appwriteConfig.customizationCollectionId);
     await clearAll(appwriteConfig.menuCollectionId);
     await clearAll(appwriteConfig.menuCustomizationsCollectionId);
     await clearStorage();
@@ -102,7 +102,7 @@ async function seed(): Promise<void> {
     for (const cus of data.customization) {
         const doc = await databases.createDocument(
             appwriteConfig.databaseId,
-            appwriteConfig.customizationsCollectionId,
+            appwriteConfig.customizationCollectionId,
             ID.unique(),
             {
                 name: cus.name,

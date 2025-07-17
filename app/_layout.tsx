@@ -3,11 +3,12 @@ import { useFonts } from 'expo-font';
 import { useEffect} from "react";
 
 import './global.css';
-import useAuthStore from "@/store/auth.store";
+import useAuthStore from "@/store/auth.state";
+
 
 
 export default function RootLayout() {
-  const { isLoading, fetchAuthenticatedUser } = useAuthStore();
+  const {isLoading, fetchAuthenticatedUser} = useAuthStore();
 
   const [fontsLoaded, error] = useFonts({
     "QuickSand-Bold": require('../assets/fonts/Quicksand-Bold.ttf'),
@@ -18,16 +19,15 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if(error) throw error;
-    if(fontsLoaded) SplashScreen.hideAsync();
+    if (error) throw error;
+    if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded, error]);
 
   useEffect(() => {
     fetchAuthenticatedUser()
   }, []);
 
-  if(!fontsLoaded || isLoading) return null;
+  if (!fontsLoaded || isLoading) return null;
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <Stack screenOptions={{headerShown: false}}/>
 }
-

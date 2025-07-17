@@ -4,9 +4,10 @@ import {useState} from "react";
 import CustomInput from "@/components/CustomImput";
 import CustomButton from "@/components/CustomButton";
 import {signIn} from "@/lib/appwrite";
-// import * as Sentry from '@sentry/re  act-native'
+import useAuthStore from "@/store/auth.state";
 
 const SignIn = () => {
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [form, setForm] = useState({ email: '', password: '' });
 
@@ -19,12 +20,14 @@ const SignIn = () => {
 
         try {
             await signIn({ email, password });
-            Alert.alert('Successfully signed in!', 'success');
+            await useAuthStore.getState().fetchAuthenticatedUser();
+
+
             router.replace("/");
-        } catch(error: any) {
-            Alert.alert('Error', error.message);
-            // Sentry.captureEvent(error);
-        } finally {
+        } catch (error: any) {
+            Alert.alert('Error', error.message || 'Sign-in failed');
+        }
+        finally {
             setIsSubmitting(false);
         }
     }

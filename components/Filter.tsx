@@ -15,9 +15,10 @@ const Filter = ({ categories }: { categories: Category[] }) => {
         else router.setParams({ category: id });
     };
 
-    const filterData: (Category | { $id: string; name: string })[] = categories
-        ? [{ $id: 'all', name: 'All' }, ...categories]
-        : [{ $id: 'all', name: 'All' }]
+    const filterData: (Category | { $id: string; name: string })[] =
+        categories && Array.isArray(categories)
+            ? [{ $id: 'all', name: 'All' }, ...categories]
+            : [{ $id: 'all', name: 'All' }];
 
     return (
         <FlatList
@@ -33,7 +34,9 @@ const Filter = ({ categories }: { categories: Category[] }) => {
                     style={Platform.OS === 'android' ? { elevation: 5, shadowColor: '#878787'} : {}}
                     onPress={() => handlePress(item.$id)}
                 >
-                    <Text className={cn('body-medium', active === item.$id ? 'text-white' : 'text-gray-200')}>{item.name}</Text>
+                    <Text className={cn('body-medium', active === item.$id ? 'text-white' : 'text-gray-200')}>
+                        {item.name}
+                    </Text>
                 </TouchableOpacity>
             )}
         />
