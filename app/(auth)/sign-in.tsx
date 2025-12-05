@@ -3,7 +3,7 @@ import {Link, router} from "expo-router";
 import {useState} from "react";
 import CustomInput from "@/components/CustomImput";
 import CustomButton from "@/components/CustomButton";
-import {signIn} from "@/lib/appwrite";
+import { signIn } from '@/lib/supabase-auth';
 import useAuthStore from "@/store/auth.state";
 
 const SignIn = () => {

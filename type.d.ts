@@ -1,25 +1,40 @@
-import { Models } from "react-native-appwrite";
+// Updated for Supabase - removed Models.Document dependency
 
-export interface MenuItem extends Models.Document {
+export interface MenuItem {
+    $id: string; // Supabase uses 'id' but we keep $id for compatibility
+    id?: string; // Supabase native id
     name: string;
     price: number;
     image_url: string;
-    description: string;
-    calories: number;
-    protein: number;
-    rating: number;
-    type: string;
+    description?: string;
+    calories?: number;
+    protein?: number;
+    rating?: number;
+    type?: string;
+    category_id?: string;
+    restaurant_id?: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
-export interface Category extends Models.Document {
+export interface Category {
+    $id: string; // Supabase uses 'id' but we keep $id for compatibility
+    id?: string; // Supabase native id
     name: string;
-    description: string;
+    description?: string;
+    image_url?: string;
+    created_at?: string;
 }
 
-export interface User extends Models.Document {
+export interface User {
+    $id: string; // Supabase uses 'id' but we keep $id for compatibility
+    id?: string; // Supabase native id
     name: string;
     email: string;
     avatar: string;
+    avatar_url?: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface CartCustomization {

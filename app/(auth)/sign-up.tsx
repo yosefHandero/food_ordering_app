@@ -3,7 +3,7 @@ import {Link, router} from "expo-router";
 import CustomButton from "@/components/CustomButton";
 import {useState} from "react";
 import CustomInput from "@/components/CustomImput";
-import {createUser} from "@/lib/appwrite";
+import { createUser } from '@/lib/supabase-auth';
 
 const SignUp = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
