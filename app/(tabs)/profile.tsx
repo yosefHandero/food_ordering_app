@@ -1,39 +1,39 @@
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  Alert,
-  Dimensions,
-  ImageBackground,
-  Platform,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import useAuthStore from '@/store/auth.state';
 import CartButton from '@/components/CartButton';
-import { signOut } from '@/lib/supabase-auth';
-import { router } from 'expo-router';
-import { images } from '@/constants';
-import { useEffect } from 'react';
-import { User } from '@/type';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { images } from '@/constants';
+import useAuthStore from '@/store/auth.state';
+import { User } from '@/type';
+import { router } from 'expo-router';
+import { useEffect } from 'react';
+import {
+  Alert,
+  Dimensions,
+  Image,
+  ImageBackground,
+  ScrollView,
+  Text,
+  View
+} from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 const Profile = () => {
-  const { user, setUser, setIsAuthenticated, fetchAuthenticatedUser } =
-    useAuthStore();
-
+  // Use selectors to only subscribe to needed state, preventing unnecessary re-renders
+  const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const setUser = useAuthStore((state) => state.setUser);
+  const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
+  const fetchAuthenticatedUser = useAuthStore((state) => state.fetchAuthenticatedUser);
+
   useEffect(() => {
     const init = async () => {
       if (!isAuthenticated) {
-        const user: User | null = await fetchAuthenticatedUser();
+        const fetchedUser: User | null = await fetchAuthenticatedUser();
 
-        if (!user) {
+        if (!fetchedUser) {
           setIsAuthenticated(false);
           setUser(null);
         }
@@ -41,6 +41,7 @@ const Profile = () => {
     };
 
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLogout = async () => {

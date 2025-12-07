@@ -17,15 +17,14 @@ type AuthState = {
 const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   user: null,
-  isLoading: true,
+  isLoading: false, // Start as false - don't block app access
 
   setIsAuthenticated: (value) => set({ isAuthenticated: value }),
   setUser: (user) => set({ user }),
   setLoading: (value) => set({ isLoading: value }),
 
   fetchAuthenticatedUser: async () => {
-    set({ isLoading: true });
-
+    // Don't set loading - fetch in background
     try {
       const user = await getCurrentUser();
 
@@ -44,7 +43,7 @@ const useAuthStore = create<AuthState>((set) => ({
       }
       return user;
     } catch (e) {
-      console.log('fetchAuthenticatedUser error', e);
+      // Silently fail - allow browsing without auth
       set({
         isAuthenticated: false,
         user: null,

@@ -1,5 +1,5 @@
+import { Category, GetMenuParams, MenuItem } from '@/type';
 import { supabase, TABLES } from './supabase';
-import { GetMenuParams, MenuItem, Category } from '@/type';
 
 /**
  * Get menu items with optional category and search filters
@@ -11,14 +11,14 @@ export const getMenu = async ({ category, query, limit = 50 }: GetMenuParams & {
       .select('*')
       .limit(limit);
 
-    // Filter by category if provided
-    if (category) {
+    // Filter by category if provided and not empty
+    if (category && category.trim() !== '') {
       queryBuilder = queryBuilder.eq('category_id', category);
     }
 
-    // Search by name if query provided
-    if (query) {
-      queryBuilder = queryBuilder.ilike('name', `%${query}%`);
+    // Search by name if query provided and not empty
+    if (query && query.trim() !== '') {
+      queryBuilder = queryBuilder.ilike('name', `%${query.trim()}%`);
     }
 
     const { data, error } = await queryBuilder.order('created_at', { ascending: false });

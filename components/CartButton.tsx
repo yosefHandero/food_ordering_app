@@ -1,26 +1,27 @@
-import { View, Text, TouchableOpacity, Platform } from 'react-native';
-import React from 'react';
+import { useCartStore } from '@/store/cart.store';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withSequence,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { useCartStore } from '@/store/cart.store';
-import { router } from 'expo-router';
-import { useEffect } from 'react';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 const CartButton = () => {
-  const { getTotalItems } = useCartStore();
-  const totalItems = getTotalItems();
+  // Use selector to only subscribe to items, preventing unnecessary re-renders
+  const items = useCartStore((state) => state.items);
+  const totalItems = items.reduce((total, item) => total + item.quantity, 0);
   const scale = useSharedValue(1);
   const badgeScale = useSharedValue(1);
-  const badgeOpacity = useSharedValue(totalItems > 0 ? 1 : 0);
+  // Initialize with default value, update in useEffect
+  const badgeOpacity = useSharedValue(0);
 
   useEffect(() => {
     if (totalItems > 0) {
@@ -32,6 +33,7 @@ const CartButton = () => {
     } else {
       badgeOpacity.value = withTiming(0, { duration: 200 });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalItems]);
 
   const animatedStyle = useAnimatedStyle(() => ({

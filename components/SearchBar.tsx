@@ -1,62 +1,91 @@
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
-import { TextInput, TouchableOpacity, View, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Platform, TextInput, TouchableOpacity, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-} from 'react-native-reanimated';
-import { useDebounce } from 'use-debounce';
-import { Input } from './ui/Input';
+} from "react-native-reanimated";
+import { useDebounce } from "use-debounce";
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 const Searchbar = () => {
   const params = useLocalSearchParams<{ query: string }>();
-  const [query, setQuery] = useState(params.query || '');
+  const initialQuery = params.query || "";
+  const [query, setQuery] = useState(initialQuery);
   const [debouncedQuery] = useDebounce(query, 500);
   const [isFocused, setIsFocused] = useState(false);
   const borderGlow = useSharedValue(0);
+  const isInternalUpdate = useRef(false);
+  const lastParamsQuery = useRef(initialQuery);
 
-  React.useEffect(() => {
-    if (debouncedQuery !== params.query) {
+  // Sync local state with URL params when they change externally (e.g., from Filter)
+  useEffect(() => {
+    const currentParamsQuery = params.query || "";
+    // Only update if params changed externally (not from our own update)
+    if (
+      !isInternalUpdate.current &&
+      currentParamsQuery !== lastParamsQuery.current
+    ) {
+      setQuery(currentParamsQuery);
+      lastParamsQuery.current = currentParamsQuery;
+    }
+  }, [params.query]);
+
+  // Update URL params when debounced query changes (but avoid loops)
+  useEffect(() => {
+    const currentParamsQuery = params.query || "";
+    if (debouncedQuery !== currentParamsQuery) {
+      isInternalUpdate.current = true;
       if (debouncedQuery.trim()) {
         router.setParams({ query: debouncedQuery });
+        lastParamsQuery.current = debouncedQuery;
       } else {
         router.setParams({ query: undefined });
+        lastParamsQuery.current = "";
       }
+      // Reset flag after router updates
+      setTimeout(() => {
+        isInternalUpdate.current = false;
+      }, 200);
     }
-  }, [debouncedQuery]);
+  }, [debouncedQuery, params.query]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     borderGlow.value = withTiming(isFocused ? 1 : 0, { duration: 200 });
-  }, [isFocused]);
+  }, [isFocused, borderGlow]);
 
   const glowStyle = useAnimatedStyle(() => ({
     opacity: borderGlow.value * 0.3,
   }));
 
-  const handleClear = () => {
-    setQuery('');
+  const handleClear = useCallback(() => {
+    setQuery("");
+    isInternalUpdate.current = true;
     router.setParams({ query: undefined });
-  };
+    lastParamsQuery.current = "";
+    setTimeout(() => {
+      isInternalUpdate.current = false;
+    }, 200);
+  }, []);
 
   return (
     <View className="relative">
       <AnimatedView
         style={[
           {
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
             borderRadius: 16,
-            backgroundColor: '#FF6B35',
+            backgroundColor: "#FF6B35",
             ...Platform.select({
               ios: {
-                shadowColor: '#FF6B35',
+                shadowColor: "#FF6B35",
                 shadowOffset: { width: 0, height: 0 },
                 shadowOpacity: 1,
                 shadowRadius: 12,
@@ -74,7 +103,7 @@ const Searchbar = () => {
         <Ionicons
           name="search-outline"
           size={20}
-          color={isFocused ? '#FF6B35' : '#808080'}
+          color={isFocused ? "#FF6B35" : "#808080"}
           style={{ marginRight: 8 }}
         />
         <TextInput

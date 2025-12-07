@@ -1,18 +1,18 @@
-import { FlatList, Text, View, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import useSupabase from '@/lib/useSupabase';
-import { getCategories, getMenu } from '@/lib/supabase-data';
-import { useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
-import CartButton from '@/components/CartButton';
-import cn from 'clsx';
-import MenuCard from '@/components/MenuCard';
-import { Category, MenuItem } from '@/type';
-import Filter from '@/components/Filter';
-import SearchBar from '@/components/SearchBar';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+import CartButton from "@/components/CartButton";
+import Filter from "@/components/Filter";
+import MenuCard from "@/components/MenuCard";
+import SearchBar from "@/components/SearchBar";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { getCategories, getMenu } from "@/lib/supabase-data";
+import useSupabase from "@/lib/useSupabase";
+import { Category, MenuItem } from "@/type";
+import { Ionicons } from "@expo/vector-icons";
+import cn from "clsx";
+import { useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
+import { FlatList, Text, View } from "react-native";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -22,17 +22,24 @@ const Search = () => {
     category: string;
   }>();
 
-            const { data, refetch, loading } = useSupabase({
-                fn: getMenu,
-                params: { category, query, limit: 6 },
-            });
-            const { data: categories, loading: categoriesLoading } = useSupabase({
-                fn: getCategories,
-            });
+  // Normalize params - convert empty strings to undefined
+  const normalizedCategory =
+    category && category.trim() !== "" ? category : undefined;
+  const normalizedQuery = query && query.trim() !== "" ? query : undefined;
 
+  const { data, refetch, loading } = useSupabase({
+    fn: getMenu,
+    params: { category: normalizedCategory, query: normalizedQuery, limit: 6 },
+    skip: true, // Skip initial fetch, we'll call refetch manually when params change
+  });
+  const { data: categories, loading: categoriesLoading } = useSupabase({
+    fn: getCategories,
+  });
+
+  // Fetch data when category or query changes
   useEffect(() => {
-    refetch({ category, query, limit: 6 });
-  }, [category, query]);
+    refetch({ category: normalizedCategory, query: normalizedQuery, limit: 6 });
+  }, [normalizedCategory, normalizedQuery, refetch]);
 
   const renderItem = ({ item, index }: { item: MenuItem; index: number }) => {
     const isFirstRightColItem = index % 2 === 0;
@@ -41,8 +48,8 @@ const Search = () => {
       <AnimatedView
         entering={FadeInDown.delay(index * 50).springify()}
         className={cn(
-          'flex-1 max-w-[48%]',
-          !isFirstRightColItem ? 'mt-10' : 'mt-0'
+          "flex-1 max-w-[48%]",
+          !isFirstRightColItem ? "mt-10" : "mt-0"
         )}
       >
         <MenuCard item={item} />
@@ -61,7 +68,7 @@ const Search = () => {
   );
 
   return (
-    <SafeAreaView className="bg-bg-primary h-full" edges={['top']}>
+    <SafeAreaView className="bg-bg-primary h-full" edges={["top"]}>
       <FlatList
         data={data || []}
         renderItem={renderItem}

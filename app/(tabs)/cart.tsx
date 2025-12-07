@@ -1,14 +1,15 @@
-import { View, Text, FlatList, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCartStore } from '@/store/cart.store';
-import cn from 'clsx';
-import CartItem from '@/components/CartItem';
-import { router } from 'expo-router';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
-import CartButton from '@/components/CartButton';
+import CartButton from "@/components/CartButton";
+import CartItem from "@/components/CartItem";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import useAuthStore from "@/store/auth.state";
+import { useCartStore } from "@/store/cart.store";
+import { Ionicons } from "@expo/vector-icons";
+import cn from "clsx";
+import { router } from "expo-router";
+import { Alert, FlatList, Platform, Text, View } from "react-native";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
@@ -24,16 +25,18 @@ const PaymentInfoRow = ({
   <View className="flex-row items-center justify-between my-2">
     <Text
       className={cn(
-        'paragraph-medium',
-        isTotal ? 'text-text-primary font-quicksand-bold' : 'text-text-secondary'
+        "paragraph-medium",
+        isTotal
+          ? "text-text-primary font-quicksand-bold"
+          : "text-text-secondary"
       )}
     >
       {label}
     </Text>
     <Text
       className={cn(
-        'paragraph-semibold',
-        isTotal ? 'text-text-primary' : 'text-text-primary'
+        "paragraph-semibold",
+        isTotal ? "text-text-primary" : "text-text-primary"
       )}
     >
       {value}
@@ -51,7 +54,7 @@ const Cart = () => {
   const finalTotal = totalPrice + deliveryFee - discount;
 
   return (
-    <SafeAreaView className="bg-bg-primary h-full" edges={['top']}>
+    <SafeAreaView className="bg-bg-primary h-full" edges={["top"]}>
       <View className="flex-row items-center justify-between px-5 py-4">
         <Text className="h2-bold text-text-primary">Your Cart</Text>
         <CartButton />
@@ -60,7 +63,10 @@ const Cart = () => {
       <FlatList
         data={items}
         renderItem={({ item, index }) => (
-          <AnimatedView entering={FadeInDown.delay(index * 50)} className="px-5">
+          <AnimatedView
+            entering={FadeInDown.delay(index * 50)}
+            className="px-5"
+          >
             <CartItem item={item} />
           </AnimatedView>
         )}
@@ -80,7 +86,7 @@ const Cart = () => {
             </Text>
             <Button
               title="Browse Menu"
-              onPress={() => router.push('/search')}
+              onPress={() => router.push("/search")}
               variant="primary"
             />
           </AnimatedView>
@@ -97,7 +103,10 @@ const Cart = () => {
                   label={`Total Items (${totalItems})`}
                   value={`$${totalPrice.toFixed(2)}`}
                 />
-                <PaymentInfoRow label="Delivery Fee" value={`$${deliveryFee.toFixed(2)}`} />
+                <PaymentInfoRow
+                  label="Delivery Fee"
+                  value={`$${deliveryFee.toFixed(2)}`}
+                />
                 <PaymentInfoRow
                   label="Discount"
                   value={`- $${discount.toFixed(2)}`}
@@ -112,7 +121,24 @@ const Cart = () => {
 
               <Button
                 title="Proceed to Checkout"
-                onPress={() => router.push('/checkout')}
+                onPress={() => {
+                  const { isAuthenticated } = useAuthStore.getState();
+                  if (!isAuthenticated) {
+                    Alert.alert(
+                      "Login Required",
+                      "Please sign in to proceed to checkout.",
+                      [
+                        { text: "Cancel", style: "cancel" },
+                        {
+                          text: "Sign In",
+                          onPress: () => router.push("/sign-in"),
+                        },
+                      ]
+                    );
+                  } else {
+                    router.push("/checkout");
+                  }
+                }}
                 variant="primary"
                 fullWidth
                 rightIcon="arrow-forward"
@@ -128,10 +154,10 @@ const Cart = () => {
           entering={FadeIn.duration(300)}
           className="absolute bottom-0 left-0 right-0 bg-bg-elevated border-t border-bg-tertiary px-5 py-4"
           style={{
-            paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+            paddingBottom: Platform.OS === "ios" ? 40 : 24,
             ...Platform.select({
               ios: {
-                shadowColor: '#000',
+                shadowColor: "#000",
                 shadowOffset: { width: 0, height: -4 },
                 shadowOpacity: 0.3,
                 shadowRadius: 12,
@@ -145,7 +171,7 @@ const Cart = () => {
           <View className="flex-row items-center justify-between mb-3">
             <View>
               <Text className="text-xs font-quicksand-medium text-text-tertiary">
-                {totalItems} {totalItems === 1 ? 'item' : 'items'}
+                {totalItems} {totalItems === 1 ? "item" : "items"}
               </Text>
               <Text className="h3-bold text-text-primary">
                 ${finalTotal.toFixed(2)}
@@ -153,7 +179,24 @@ const Cart = () => {
             </View>
             <Button
               title="Checkout"
-              onPress={() => router.push('/checkout')}
+              onPress={() => {
+                const { isAuthenticated } = useAuthStore.getState();
+                if (!isAuthenticated) {
+                  Alert.alert(
+                    "Login Required",
+                    "Please sign in to proceed to checkout.",
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Sign In",
+                        onPress: () => router.push("/sign-in"),
+                      },
+                    ]
+                  );
+                } else {
+                  router.push("/checkout");
+                }
+              }}
               variant="primary"
               size="md"
             />

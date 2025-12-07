@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 
 interface UseSupabaseOptions<T, P extends Record<string, any>> {
@@ -46,15 +46,22 @@ const useSupabase = <T, P extends Record<string, any>>({
     [fn, skip]
   );
 
+  // Store initial params to avoid dependency issues
+  const initialParamsRef = useRef(params);
+  
   useEffect(() => {
     if (!skip) {
-      fetchData(params);
+      fetchData(initialParamsRef.current);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const refetch = async (newParams?: P) => {
-    await fetchData(newParams || params);
-  };
+  const refetch = useCallback(
+    async (newParams?: P) => {
+      await fetchData(newParams || initialParamsRef.current);
+    },
+    [fetchData]
+  );
 
   return { data, loading, error, refetch };
 };
