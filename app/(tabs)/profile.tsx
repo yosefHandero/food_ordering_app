@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/Card';
 import { images } from '@/constants';
 import useAuthStore from '@/store/auth.state';
 import { User } from '@/type';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import {
@@ -45,11 +46,25 @@ const Profile = () => {
   }, []);
 
   const handleLogout = async () => {
-    try {
-      await useAuthStore.getState().signOut();
-    } catch (err) {
-      Alert.alert('Logout Failed', 'Please try again later.');
-    }
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await useAuthStore.getState().signOut();
+              router.replace('/');
+            } catch (err) {
+              Alert.alert('Logout Failed', 'Please try again later.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -106,15 +121,21 @@ const Profile = () => {
           <AnimatedView entering={FadeIn.delay(200)}>
             <Card variant="elevated" className="mb-6">
               <View className="flex-row items-center gap-4">
-                <Image
-                  source={{
-                    uri:
-                      typeof user?.avatar === 'string'
-                        ? user.avatar
-                        : 'https://i.pravatar.cc/100?img=12',
-                  }}
-                  className="w-20 h-20 rounded-full border-2 border-accent-primary"
-                />
+                {user?.avatar ? (
+                  <Image
+                    source={{
+                      uri: typeof user.avatar === 'string' ? user.avatar : user.avatar_url || 'https://i.pravatar.cc/100?img=12',
+                    }}
+                    className="w-20 h-20 rounded-full border-2 border-accent-primary"
+                    onError={() => {
+                      // Fallback handled by defaultSource or placeholder
+                    }}
+                  />
+                ) : (
+                  <View className="w-20 h-20 rounded-full border-2 border-accent-primary bg-bg-elevated items-center justify-center">
+                    <Ionicons name="person-outline" size={32} color="#FF6B35" />
+                  </View>
+                )}
                 <View className="flex-1">
                   <Text className="h3-bold text-text-primary mb-1">
                     {user?.name || 'Guest User'}

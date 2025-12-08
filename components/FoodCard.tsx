@@ -1,22 +1,21 @@
-import React from 'react';
-import { Text, Image, View, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MenuItem } from "@/type";
+import { Ionicons } from "@expo/vector-icons";
+import cn from "clsx";
+import React from "react";
+import { Image, Platform, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
-} from 'react-native-reanimated';
-import { MenuItem } from '@/type';
-// Image URL handling - update based on your Supabase storage setup
-import { Card } from './ui/Card';
-import { Badge } from './ui/Badge';
-import cn from 'clsx';
+} from "react-native-reanimated";
+import { Badge } from "./ui/Badge";
+import { Card } from "./ui/Card";
 
 interface FoodCardProps {
   item: MenuItem;
   onPress?: () => void;
-  variant?: 'default' | 'large';
+  variant?: "default" | "large";
   showRating?: boolean;
 }
 
@@ -25,10 +24,10 @@ const AnimatedCard = Animated.createAnimatedComponent(Card);
 export const FoodCard: React.FC<FoodCardProps> = ({
   item,
   onPress,
-  variant = 'default',
+  variant = "default",
   showRating = true,
 }) => {
-  const imageUrl = item.image_url || '';
+  const imageUrl = item?.image_url || "";
   const scale = useSharedValue(1);
   const imageOpacity = useSharedValue(0);
 
@@ -56,19 +55,19 @@ export const FoodCard: React.FC<FoodCardProps> = ({
     }
   };
 
-  const isLarge = variant === 'large';
+  const isLarge = variant === "large";
 
   return (
     <AnimatedCard
       onPress={onPress}
       variant="elevated"
       className={cn(
-        'relative overflow-hidden',
-        isLarge ? 'pt-32 pb-6' : 'pt-24 pb-5'
+        "relative overflow-hidden",
+        isLarge ? "pt-32 pb-6" : "pt-24 pb-5"
       )}
       style={[
         animatedStyle,
-        Platform.OS === 'android' && {
+        Platform.OS === "android" && {
           elevation: 6,
         },
       ]}
@@ -77,9 +76,9 @@ export const FoodCard: React.FC<FoodCardProps> = ({
       <Animated.View
         style={[
           {
-            position: 'absolute',
+            position: "absolute",
             top: isLarge ? -40 : -30,
-            alignSelf: 'center',
+            alignSelf: "center",
             width: isLarge ? 140 : 120,
             height: isLarge ? 140 : 120,
             zIndex: 10,
@@ -87,19 +86,28 @@ export const FoodCard: React.FC<FoodCardProps> = ({
           imageAnimatedStyle,
         ]}
       >
-        <Image
-          source={{ uri: imageUrl }}
-          className="w-full h-full"
-          resizeMode="contain"
-        />
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            className="w-full h-full"
+            resizeMode="contain"
+            onError={() => {
+              // Image failed to load, will show fallback
+            }}
+          />
+        ) : (
+          <View className="w-full h-full bg-bg-elevated items-center justify-center rounded-full">
+            <Ionicons name="image-outline" size={40} color="#808080" />
+          </View>
+        )}
       </Animated.View>
 
       {/* Content */}
       <View className="items-center mt-auto">
         <Text
           className={cn(
-            'font-quicksand-bold text-text-primary text-center mb-1.5',
-            isLarge ? 'text-lg' : 'text-base'
+            "font-quicksand-bold text-text-primary text-center mb-1.5",
+            isLarge ? "text-lg" : "text-base"
           )}
           numberOfLines={2}
         >
@@ -124,11 +132,7 @@ export const FoodCard: React.FC<FoodCardProps> = ({
             />
           )}
           {item.calories && (
-            <Badge
-              label={`${item.calories} cal`}
-              variant="neutral"
-              size="sm"
-            />
+            <Badge label={`${item.calories} cal`} variant="neutral" size="sm" />
           )}
         </View>
 
@@ -141,4 +145,3 @@ export const FoodCard: React.FC<FoodCardProps> = ({
     </AnimatedCard>
   );
 };
-

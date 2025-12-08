@@ -1,6 +1,5 @@
+import { CreateUserParams, SignInParams, User } from '@/type';
 import { supabase, TABLES } from './supabase';
-import { CreateUserParams, SignInParams } from '@/type';
-import { User } from '@/type';
 
 /**
  * Create a new user account
@@ -48,7 +47,15 @@ export const createUser = async ({ email, password, name }: CreateUserParams) =>
 
     return signInData.user;
   } catch (error: any) {
-    throw new Error(error.message || 'Failed to create user');
+    const errorMessage = error.message || 'Failed to create user';
+    // Provide more user-friendly error messages
+    if (errorMessage.includes('already registered') || errorMessage.includes('User already registered')) {
+      throw new Error('This email is already registered. Please sign in instead.');
+    }
+    if (errorMessage.includes('Password')) {
+      throw new Error('Password must be at least 6 characters long.');
+    }
+    throw new Error(errorMessage);
   }
 };
 
@@ -65,7 +72,12 @@ export const signIn = async ({ email, password }: SignInParams) => {
     if (error) throw error;
     return data;
   } catch (error: any) {
-    throw new Error(error.message || 'Sign-in failed');
+    const errorMessage = error.message || 'Sign-in failed';
+    // Provide more user-friendly error messages
+    if (errorMessage.includes('Invalid login credentials') || errorMessage.includes('Email not confirmed')) {
+      throw new Error('Invalid email or password. Please check your credentials and try again.');
+    }
+    throw new Error(errorMessage);
   }
 };
 

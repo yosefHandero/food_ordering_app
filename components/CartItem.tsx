@@ -1,7 +1,8 @@
 import { useCartStore } from '@/store/cart.store';
 import { CartItemType } from '@/type';
-import { Image, Text, TouchableOpacity, View, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { memo } from 'react';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -11,7 +12,7 @@ import { Card } from './ui/Card';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
-const CartItem = ({ item }: { item: CartItemType }) => {
+const CartItem = memo(({ item }: { item: CartItemType }) => {
   const { increaseQty, decreaseQty, removeItem } = useCartStore();
   const scale = useSharedValue(1);
 
@@ -34,11 +35,17 @@ const CartItem = ({ item }: { item: CartItemType }) => {
       <Card variant="elevated" className="mb-4">
         <View className="flex-row items-center gap-4">
           <View className="cart-item__image">
-            <Image
-              source={{ uri: item.image_url }}
-              className="w-full h-full rounded-xl"
-              resizeMode="cover"
-            />
+            {item.image_url ? (
+              <Image
+                source={{ uri: item.image_url }}
+                className="w-full h-full rounded-xl"
+                resizeMode="cover"
+              />
+            ) : (
+              <View className="w-full h-full bg-bg-elevated items-center justify-center">
+                <Ionicons name="image-outline" size={24} color="#808080" />
+              </View>
+            )}
           </View>
 
           <View className="flex-1">
@@ -89,6 +96,11 @@ const CartItem = ({ item }: { item: CartItemType }) => {
       </Card>
     </Animated.View>
   );
-};
+}, (prevProps, nextProps) => {
+  return prevProps.item.id === nextProps.item.id &&
+         prevProps.item.quantity === nextProps.item.quantity;
+});
+
+CartItem.displayName = 'CartItem';
 
 export default CartItem;

@@ -1,27 +1,26 @@
-import { Text, Image, Platform, Alert, TouchableOpacity, View } from 'react-native';
-import { MenuItem } from '@/type';
-// Image URL handling - update based on your Supabase storage setup
-import { useCartStore } from '@/store/cart.store';
 import useAuthStore from '@/store/auth.state';
+import { useCartStore } from '@/store/cart.store';
+import { MenuItem } from '@/type';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { FoodCard } from './FoodCard';
+import { memo, useCallback, useState } from 'react';
+import { Alert, Platform, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withSequence,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { FoodCard } from './FoodCard';
 
-const MenuCard = ({ item }: { item: MenuItem }) => {
+const MenuCard = memo(({ item }: { item: MenuItem }) => {
   const { addItem } = useCartStore();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [showCheckmark, setShowCheckmark] = useState(false);
   const checkmarkScale = useSharedValue(0);
 
-  const handleAddToCart = (e: any) => {
+  const handleAddToCart = useCallback((e: any) => {
     e.stopPropagation();
     
     if (!isAuthenticated) {
@@ -53,7 +52,7 @@ const MenuCard = ({ item }: { item: MenuItem }) => {
         setShowCheckmark(false);
       })
     );
-  };
+  }, [isAuthenticated, item, addItem]);
 
   const checkmarkStyle = useAnimatedStyle(() => ({
     transform: [{ scale: checkmarkScale.value }],
@@ -106,6 +105,12 @@ const MenuCard = ({ item }: { item: MenuItem }) => {
       )}
     </View>
   );
-};
+}, (prevProps, nextProps) => {
+  return prevProps.item.$id === nextProps.item.$id &&
+         prevProps.item.name === nextProps.item.name &&
+         prevProps.item.price === nextProps.item.price;
+});
+
+MenuCard.displayName = 'MenuCard';
 
 export default MenuCard;

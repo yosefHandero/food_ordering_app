@@ -1,70 +1,159 @@
-import {View, Text, Alert} from 'react-native'
-import {Link, router} from "expo-router";
 import CustomButton from "@/components/CustomButton";
-import {useState} from "react";
 import CustomInput from "@/components/CustomImput";
 import { createUser } from '@/lib/supabase-auth';
+import useAuthStore from "@/store/auth.state";
+import { Link, Redirect, router } from "expo-router";
+import { useState } from "react";
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 
 const SignUp = () => {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [form, setForm] = useState({ name: '', email: '', password: '' });
+    const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
+
+    // Redirect if already authenticated
+    if (isAuthenticated) {
+        return <Redirect href="/" />;
+    }
+
+    const validateForm = () => {
+        const newErrors: { name?: string; email?: string; password?: string } = {};
+        
+        if (!form.name.trim()) {
+            newErrors.name = 'Name is required';
+        } else if (form.name.trim().length < 2) {
+            newErrors.name = 'Name must be at least 2 characters';
+        }
+        
+        if (!form.email.trim()) {
+            newErrors.email = 'Email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+            newErrors.email = 'Please enter a valid email address';
+        }
+        
+        if (!form.password) {
+            newErrors.password = 'Password is required';
+        } else if (form.password.length < 6) {
+            newErrors.password = 'Password must be at least 6 characters';
+        }
+        
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const submit = async () => {
-        const { name, email, password } = form;
+        if (!validateForm()) {
+            return;
+        }
 
-        if(!name || !email || !password) return Alert.alert('Error', 'Please enter valid email address & password.');
-
-        setIsSubmitting(true)
+        setIsSubmitting(true);
+        setErrors({});
 
         try {
-            await createUser({ email,  password,  name });
-
+            await createUser({ 
+                email: form.email.trim(), 
+                password: form.password, 
+                name: form.name.trim() 
+            });
+            await useAuthStore.getState().fetchAuthenticatedUser();
             router.replace('/');
         } catch(error: any) {
-            Alert.alert('Error', error.message);
+            const errorMessage = error.message || 'Failed to create account';
+            if (errorMessage.includes('already registered') || errorMessage.includes('User already registered')) {
+                setErrors({ email: 'This email is already registered' });
+            } else {
+                Alert.alert('Error', errorMessage);
+            }
         } finally {
             setIsSubmitting(false);
         }
     }
 
     return (
-        <View className="gap-10 bg-white rounded-lg p-5 mt-5">
-            <CustomInput
-                placeholder="Enter your name"
-                value={form.name}
-                onChangeText={(text) => setForm((prev) => ({ ...prev, name: text }))}
-                label="Full name"
-            />
-            <CustomInput
-                placeholder="Enter your email"
-                value={form.email}
-                onChangeText={(text) => setForm((prev) => ({ ...prev, email: text }))}
-                label="Email"
-                keyboardType="email-address"
-            />
-            <CustomInput
-                placeholder="Enter your password"
-                value={form.password}
-                onChangeText={(text) => setForm((prev) => ({ ...prev, password: text }))}
-                label="Password"
-                secureTextEntry={true}
-            />
+        <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            className="flex-1"
+        >
+            <ScrollView 
+                contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+            >
+                <View className="px-5 pb-8">
+                    <View className="gap-6 bg-bg-tertiary rounded-3xl p-6 border border-bg-elevated/50">
+                        <View className="mb-2">
+                            <Text className="h2-bold text-text-primary mb-2">Create Account</Text>
+                            <Text className="paragraph-medium text-text-secondary">
+                                Join MealHop and start ordering delicious food
+                            </Text>
+                        </View>
 
-            <CustomButton
-                title="Sign Up"
-                isLoading={isSubmitting}
-                onPress={submit}
-            />
+                        <CustomInput
+                            placeholder="Enter your name"
+                            value={form.name}
+                            onChangeText={(text) => {
+                                setForm((prev) => ({ ...prev, name: text }));
+                                if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                            }}
+                            label="Full name"
+                        />
+                        {errors.name && (
+                            <Text className="text-xs text-accent-error mt-1 px-1">
+                                {errors.name}
+                            </Text>
+                        )}
 
-            <View className="flex justify-center mt-5 flex-row gap-2">
-                <Text className="base-regular text-gray-100">
-                    Already have an account?
-                </Text>
-                <Link href="/sign-in" className="base-bold text-primary">
-                    Sign In
-                </Link>
-            </View>
-        </View>
+                        <CustomInput
+                            placeholder="Enter your email"
+                            value={form.email}
+                            onChangeText={(text) => {
+                                setForm((prev) => ({ ...prev, email: text }));
+                                if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                            }}
+                            label="Email"
+                            keyboardType="email-address"
+                        />
+                        {errors.email && (
+                            <Text className="text-xs text-accent-error mt-1 px-1">
+                                {errors.email}
+                            </Text>
+                        )}
+
+                        <CustomInput
+                            placeholder="Enter your password"
+                            value={form.password}
+                            onChangeText={(text) => {
+                                setForm((prev) => ({ ...prev, password: text }));
+                                if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                            }}
+                            label="Password"
+                            secureTextEntry={true}
+                        />
+                        {errors.password && (
+                            <Text className="text-xs text-accent-error mt-1 px-1">
+                                {errors.password}
+                            </Text>
+                        )}
+
+                        <CustomButton
+                            title="Sign Up"
+                            isLoading={isSubmitting}
+                            onPress={submit}
+                        />
+
+                        <View className="flex justify-center mt-4 flex-row gap-2">
+                            <Text className="paragraph-medium text-text-tertiary">
+                                Already have an account?
+                            </Text>
+                            <Link href="/sign-in" className="paragraph-semibold text-accent-primary">
+                                Sign In
+                            </Link>
+                        </View>
+                    </View>
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     )
 }
 

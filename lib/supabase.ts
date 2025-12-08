@@ -1,12 +1,19 @@
-import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createClient } from '@supabase/supabase-js';
 import { Platform } from 'react-native';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  const missingVars = [];
+  if (!supabaseUrl) missingVars.push('EXPO_PUBLIC_SUPABASE_URL');
+  if (!supabaseAnonKey) missingVars.push('EXPO_PUBLIC_SUPABASE_ANON_KEY');
+  
+  throw new Error(
+    `Missing Supabase environment variables: ${missingVars.join(', ')}\n` +
+    'Please create a .env.local file with these variables. See SUPABASE_MIGRATION.md for details.'
+  );
 }
 
 // Web-compatible storage adapter

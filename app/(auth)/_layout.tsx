@@ -1,34 +1,66 @@
+import { images } from "@/constants";
+import { router, Slot } from "expo-router";
 import {
-    View,
-    Text,
+    Dimensions,
+    Image,
+    ImageBackground,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
     ScrollView,
-    Dimensions,
-    ImageBackground,
-    Image,
-    Pressable
-} from 'react-native'
-import {Redirect, router, Slot} from "expo-router";
-import {images} from "@/constants";
-import useAuthStore from "@/store/auth.state";
-import { usePathname } from "expo-router";
-
+    View
+} from 'react-native';
 
 export default function AuthLayout() {
-
-    const pathname = usePathname();
-
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-            <ScrollView className="bg-white h-full" keyboardShouldPersistTaps="handled">
-                <View className="w-full relative" style={{ height: Dimensions.get('screen').height / 2.25}}>
-                    <ImageBackground source={images.loginGraphic} className="size-full rounded-b-lg" resizeMode="stretch" />
-                  <Pressable onPress={() => router.push("/")}><Image source={images.logo} className="self-center size-48 absolute -bottom-16 z-10" /></Pressable>
-
-                </View>
-                <Slot />
-            </ScrollView>
-        </KeyboardAvoidingView>
+        <View className="flex-1 bg-bg-primary">
+            <KeyboardAvoidingView 
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                className="flex-1"
+            >
+                <ScrollView 
+                    className="flex-1" 
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ flexGrow: 1 }}
+                >
+                    <View 
+                        className="w-full relative overflow-hidden" 
+                        style={{ height: Dimensions.get('screen').height / 2.5 }}
+                    >
+                        <ImageBackground 
+                            source={images.loginGraphic} 
+                            className="size-full" 
+                            resizeMode="cover"
+                        >
+                            <View 
+                                style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    height: '40%',
+                                    backgroundColor: 'rgba(10, 10, 10, 0.7)',
+                                }}
+                            />
+                        </ImageBackground>
+                        <Pressable 
+                            onPress={() => router.push("/")}
+                            className="absolute bottom-0 left-0 right-0 items-center"
+                            style={{ paddingBottom: 40 }}
+                        >
+                            <Image 
+                                source={images.logo} 
+                                className="size-32" 
+                                resizeMode="contain"
+                            />
+                        </Pressable>
+                    </View>
+                    <View className="flex-1 -mt-8">
+                        <Slot />
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </View>
     )
 }
