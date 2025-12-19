@@ -1,5 +1,5 @@
-import CustomButton from "@/components/CustomButton";
-import CustomInput from "@/components/CustomImput";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { signIn } from "@/lib/supabase-auth";
 import useAuthStore from "@/store/auth.state";
 import { Link, Redirect, router } from "expo-router";
@@ -93,7 +93,7 @@ const SignIn = () => {
               </Text>
             </View>
 
-            <CustomInput
+            <Input
               placeholder="Enter your email"
               value={form.email}
               onChangeText={(text) => {
@@ -103,14 +103,10 @@ const SignIn = () => {
               }}
               label="Email"
               keyboardType="email-address"
+              error={errors.email}
             />
-            {errors.email && (
-              <Text className="text-xs text-accent-error mt-1 px-1">
-                {errors.email}
-              </Text>
-            )}
 
-            <CustomInput
+            <Input
               placeholder="Enter your password"
               value={form.password}
               onChangeText={(text) => {
@@ -120,22 +116,20 @@ const SignIn = () => {
               }}
               label="Password"
               secureTextEntry={true}
+              error={errors.password}
             />
-            {errors.password && (
-              <Text className="text-xs text-accent-error mt-1 px-1">
-                {errors.password}
-              </Text>
-            )}
 
-            <CustomButton
+            <Button
               title="Sign In"
               isLoading={isSubmitting}
               onPress={submit}
+              variant="primary"
+              fullWidth
             />
 
             <View className="flex justify-center mt-4 flex-row gap-2">
               <Text className="paragraph-medium text-text-tertiary">
-                Don't have an account?
+                Don&apos;t have an account?
               </Text>
               <Link
                 href="/sign-up"

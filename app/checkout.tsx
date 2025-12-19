@@ -1,3 +1,4 @@
+import { PaymentInfoRow } from "@/components/PaymentInfoRow";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -6,43 +7,12 @@ import useAuthStore from "@/store/auth.state";
 import { useCartStore } from "@/store/cart.store";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Alert, Platform, ScrollView, Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const AnimatedView = Animated.createAnimatedComponent(View);
-
-const PaymentInfoRow = ({
-  label,
-  value,
-  isTotal = false,
-}: {
-  label: string;
-  value: string;
-  isTotal?: boolean;
-}) => (
-  <View className="flex-row items-center justify-between my-2">
-    <Text
-      className={
-        isTotal
-          ? "paragraph-bold text-text-primary"
-          : "paragraph-medium text-text-secondary"
-      }
-    >
-      {label}
-    </Text>
-    <Text
-      className={
-        isTotal
-          ? "h3-bold text-text-primary"
-          : "paragraph-semibold text-text-primary"
-      }
-    >
-      {value}
-    </Text>
-  </View>
-);
 
 export default function Checkout() {
   const { items, getTotalItems, getTotalPrice, clearCart } = useCartStore();
@@ -57,6 +27,17 @@ export default function Checkout() {
   const deliveryFee = 5.0;
   const discount = promoCode === "SAVE10" ? totalPrice * 0.1 : 0;
   const finalTotal = totalPrice + deliveryFee - discount;
+
+  // Redirect to cart if cart is empty
+  React.useEffect(() => {
+    if (items.length === 0) {
+      Alert.alert(
+        "Empty Cart",
+        "Your cart is empty. Please add items before checkout.",
+        [{ text: "OK", onPress: () => router.replace("/cart") }]
+      );
+    }
+  }, [items.length]);
 
   const handlePlaceOrder = async () => {
     if (!deliveryAddress.trim()) {
@@ -154,6 +135,39 @@ export default function Checkout() {
       Alert.alert("Error", error.message || "Failed to place order");
     }
   };
+
+  // Don't render checkout UI if cart is empty
+  if (items.length === 0) {
+    return (
+      <SafeAreaView className="flex-1 bg-bg-primary" edges={["top"]}>
+        <View className="flex-row items-center justify-between px-5 py-4 border-b border-bg-elevated">
+          <Button
+            title=""
+            onPress={() => router.back()}
+            variant="ghost"
+            leftIcon="arrow-back"
+            size="sm"
+          />
+          <Text className="h2-bold text-text-primary">Checkout</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View className="flex-1 items-center justify-center px-5">
+          <Ionicons name="bag-outline" size={80} color="#808080" />
+          <Text className="h3-bold text-text-primary mt-6 mb-2">
+            Your cart is empty
+          </Text>
+          <Text className="paragraph-medium text-text-tertiary text-center mb-6">
+            Please add items to your cart before checkout
+          </Text>
+          <Button
+            title="Go to Cart"
+            onPress={() => router.replace("/cart")}
+            variant="primary"
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-bg-primary" edges={["top"]}>

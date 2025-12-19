@@ -67,77 +67,6 @@ export const getCategories = async (): Promise<Category[]> => {
 };
 
 /**
- * Get restaurants with filters
- */
-export const getRestaurants = async ({
-  limit = 20,
-  cuisine,
-  rating,
-}: {
-  limit?: number;
-  cuisine?: string;
-  rating?: number;
-} = {}) => {
-  try {
-    let queryBuilder = supabase
-      .from(TABLES.RESTAURANTS)
-      .select('*')
-      .limit(limit);
-
-    if (cuisine) {
-      queryBuilder = queryBuilder.eq('cuisine', cuisine);
-    }
-
-    if (rating) {
-      queryBuilder = queryBuilder.gte('rating', rating);
-    }
-
-    const { data, error } = await queryBuilder.order('rating', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
-  } catch (error: any) {
-    throw new Error(error.message || 'Failed to fetch restaurants');
-  }
-};
-
-/**
- * Get restaurant by ID
- */
-export const getRestaurantById = async (id: string) => {
-  try {
-    const { data, error } = await supabase
-      .from(TABLES.RESTAURANTS)
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error) throw error;
-    return data;
-  } catch (error: any) {
-    throw new Error(error.message || 'Failed to fetch restaurant');
-  }
-};
-
-/**
- * Get menu items for a specific restaurant
- */
-export const getRestaurantMenu = async (restaurantId: string) => {
-  try {
-    const { data, error } = await supabase
-      .from(TABLES.MENU_ITEMS)
-      .select('*')
-      .eq('restaurant_id', restaurantId)
-      .order('name', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
-  } catch (error: any) {
-    throw new Error(error.message || 'Failed to fetch restaurant menu');
-  }
-};
-
-/**
  * Get dish by ID
  */
 export const getDishById = async (dishId: string) => {
@@ -205,50 +134,6 @@ export const createOrder = async (orderData: {
     return order;
   } catch (error: any) {
     throw new Error(error.message || 'Failed to create order');
-  }
-};
-
-/**
- * Get user orders
- */
-export const getUserOrders = async (userId: string) => {
-  try {
-    const { data, error } = await supabase
-      .from(TABLES.ORDERS)
-      .select(`
-        *,
-        restaurant:restaurants(*),
-        order_items:order_items(*, menu_item:menu_items(*))
-      `)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
-  } catch (error: any) {
-    throw new Error(error.message || 'Failed to fetch orders');
-  }
-};
-
-/**
- * Get order by ID
- */
-export const getOrderById = async (orderId: string) => {
-  try {
-    const { data, error } = await supabase
-      .from(TABLES.ORDERS)
-      .select(`
-        *,
-        restaurant:restaurants(*),
-        order_items:order_items(*, menu_item:menu_items(*))
-      `)
-      .eq('id', orderId)
-      .single();
-
-    if (error) throw error;
-    return data;
-  } catch (error: any) {
-    throw new Error(error.message || 'Failed to fetch order');
   }
 };
 

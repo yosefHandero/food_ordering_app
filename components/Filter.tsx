@@ -2,7 +2,7 @@ import { Category } from "@/type";
 import cn from "clsx";
 import { router, useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { FlatList, Platform } from "react-native";
+import { FlatList, Platform , TouchableOpacity } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -10,9 +10,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { Badge } from "./ui/Badge";
 
-const AnimatedTouchable = Animated.createAnimatedComponent(
-  require("react-native").TouchableOpacity
-);
+
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 // Separate component for filter items to use hooks properly - MUST be outside renderItem
 const FilterItem = memo(
@@ -77,7 +77,7 @@ const FilterItem = memo(
   }
 );
 
-FilterItem.displayName = 'FilterItem';
+FilterItem.displayName = "FilterItem";
 
 const Filter = ({ categories }: { categories: Category[] }) => {
   const searchParams = useLocalSearchParams();

@@ -4,7 +4,46 @@
 
 This guide explains how to seed your Supabase database with realistic mock data for the food ordering app.
 
-## Prerequisites
+There are two methods available:
+
+1. **SQL Scripts** (Recommended - Easiest) - Run directly in Supabase SQL Editor
+2. **TypeScript Script** - Requires environment variables and npm
+
+## Method 1: SQL Scripts (Recommended)
+
+### Prerequisites
+
+1. **Supabase Project Setup**: Ensure your Supabase project is created and the database schema is set up (run `setup-database.sql` in Supabase SQL Editor).
+
+### Quick Start
+
+1. Open your Supabase Dashboard
+2. Navigate to **SQL Editor**
+3. Open and run `seed-data.sql` - This seeds:
+
+   - **8 categories** (Burgers, Pizza, Pasta, Salads, Desserts, Drinks, Appetizers, Main Courses)
+   - **12 restaurants** (Various cuisines: Italian, American, Mexican, Japanese, etc.)
+   - **47+ menu items** (Items across all restaurants and categories)
+
+4. (Optional) After users are created through your app, you can run `seed-user-data.sql` to seed:
+   - Addresses
+   - Orders
+   - Order items
+   - Reviews
+
+### What Gets Seeded
+
+The `seed-data.sql` script creates:
+
+- **8 categories** - Food categories with descriptions and images
+- **12 restaurants** - Various cuisines with ratings, delivery times, and addresses
+- **47+ menu items** - Diverse menu items across all restaurants and categories
+
+All data uses consistent UUIDs, so you can safely run the script multiple times (it uses `ON CONFLICT DO NOTHING`).
+
+## Method 2: TypeScript Script
+
+### Prerequisites
 
 1. **Supabase Project Setup**: Ensure your Supabase project is created and the database schema is set up (run `setup-database.sql` in Supabase SQL Editor).
 
@@ -33,7 +72,7 @@ npm install
 
 This will install `ts-node` and `dotenv` as dev dependencies.
 
-## Running the Seeding Script
+### Running the TypeScript Seeding Script
 
 ```bash
 npm run seed:db
@@ -46,9 +85,9 @@ The script will:
 - Use upsert operations (safe to run multiple times)
 - Generate realistic mock data
 
-## Seeded Data
+### TypeScript Script Seeded Data
 
-The script generates:
+The TypeScript script generates:
 
 - **10 users** - Realistic user profiles with names and emails
 - **~20-30 addresses** - 1-3 addresses per user
@@ -144,22 +183,49 @@ After seeding:
    - Update these to match your seeded category IDs
    - Restaurant detail pages use mock data - consider fetching from the database
 
-## Notes on App Compatibility
+## Troubleshooting
 
-The following pages may need updates to fully use seeded data:
+### Tables Not Created
 
-1. **Home Page** (`app/(tabs)/index.tsx`):
+If you see "Success. No rows returned" when verifying tables, the SQL script may not have executed properly.
 
-   - Has hardcoded category IDs in `handlePress` function
-   - Should fetch categories dynamically
+**Solution:**
 
-2. **Restaurant Detail** (`app/restaurants/[id].tsx`):
+1. Check Supabase SQL Editor for any error messages
+2. Run `setup-database.sql` in parts:
+   - First: Table creation (lines 1-100)
+   - Second: Enable RLS
+   - Third: Create policies
+3. Verify tables exist:
+   ```sql
+   SELECT table_name FROM information_schema.tables
+   WHERE table_schema = 'public'
+   AND table_name IN ('users', 'restaurants', 'menu_items', 'categories', 'orders', 'order_items', 'addresses', 'reviews');
+   ```
 
-   - Uses mock restaurant data
-   - Should use `getRestaurantById` and `getRestaurantMenu` from `lib/supabase-data.ts`
+### Foreign Key Constraint Violation
 
-3. **Dish Detail** (`app/restaurants/[id]/menu/[dishId].tsx`):
-   - Uses mock dish data
-   - Should use `getDishById` from `lib/supabase-data.ts`
+- Ensure you've run `setup-database.sql` to create all tables
+- Check that tables are created in the correct order
+- Verify RLS policies allow the service role to insert data
+
+### Row Level Security Policy Violation
+
+- The service role key should bypass RLS
+- Verify the service role key is correct
+- Check that you're using `SUPABASE_SERVICE_ROLE_KEY` (not the anon key)
+
+### Missing Environment Variables
+
+- Ensure `.env.local` exists with required variables
+- Restart the Expo dev server after adding env variables
+- Verify `EXPO_PUBLIC_SUPABASE_URL` matches your project URL exactly
+
+### Still Having Issues?
+
+1. Check Supabase Logs (Logs → API Logs in dashboard)
+2. Verify environment variables in `.env.local`
+3. Try a simple query: `SELECT * FROM menu_items LIMIT 1;`
+4. Ensure Supabase project is active and fully provisioned
 
 The core queries (`getMenu`, `getCategories`, `getRestaurants`, `createOrder`, `getUserOrders`) are already set up to work with the seeded data structure.

@@ -1,7 +1,8 @@
+import { getFoodImageUrlSync } from "@/lib/food-images";
 import { MenuItem } from "@/type";
 import { Ionicons } from "@expo/vector-icons";
 import cn from "clsx";
-import React from "react";
+import React, { useState } from "react";
 import { Image, Platform, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -21,13 +22,26 @@ interface FoodCardProps {
 
 const AnimatedCard = Animated.createAnimatedComponent(Card);
 
-export const FoodCard: React.FC<FoodCardProps> = ({
+const FoodCard: React.FC<FoodCardProps> = ({
   item,
   onPress,
   variant = "default",
   showRating = true,
 }) => {
-  const imageUrl = item?.image_url || "";
+  const isLarge = variant === "large";
+  const imageSize = isLarge ? 140 : 120;
+
+  // Generate unique image URL based on food name (prioritize this)
+  const generatedImageUrl = getFoodImageUrlSync(
+    item.name,
+    imageSize,
+    imageSize
+  );
+
+  // Use generated image URL first, fallback to stored image_url if generation fails
+  const [imageUrl, setImageUrl] = useState<string>(generatedImageUrl);
+  const [imageError, setImageError] = useState(false);
+
   const scale = useSharedValue(1);
   const imageOpacity = useSharedValue(0);
 
@@ -55,16 +69,22 @@ export const FoodCard: React.FC<FoodCardProps> = ({
     }
   };
 
-  const isLarge = variant === "large";
+  const handleImageError = () => {
+    // If generated image fails, try the stored image_url as fallback
+    if (!imageError && imageUrl === generatedImageUrl && item?.image_url) {
+      setImageUrl(item.image_url);
+      setImageError(false); // Reset error to try fallback
+    } else {
+      // Both images failed, show placeholder
+      setImageError(true);
+    }
+  };
 
   return (
     <AnimatedCard
       onPress={onPress}
       variant="elevated"
-      className={cn(
-        "relative overflow-hidden",
-        isLarge ? "pt-32 pb-6" : "pt-24 pb-5"
-      )}
+      className={cn("relative", isLarge ? "pt-32 pb-6" : "pt-24 pb-5")}
       style={[
         animatedStyle,
         Platform.OS === "android" && {
@@ -86,14 +106,13 @@ export const FoodCard: React.FC<FoodCardProps> = ({
           imageAnimatedStyle,
         ]}
       >
-        {imageUrl ? (
+        {imageUrl && !imageError ? (
           <Image
             source={{ uri: imageUrl }}
             className="w-full h-full"
             resizeMode="contain"
-            onError={() => {
-              // Image failed to load, will show fallback
-            }}
+            style={{ borderRadius: 100 }}
+            onError={handleImageError}
           />
         ) : (
           <View className="w-full h-full bg-bg-elevated items-center justify-center rounded-full">
@@ -145,3 +164,7 @@ export const FoodCard: React.FC<FoodCardProps> = ({
     </AnimatedCard>
   );
 };
+
+FoodCard.displayName = "FoodCard";
+
+export { FoodCard };

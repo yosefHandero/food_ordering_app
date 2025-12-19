@@ -63,32 +63,13 @@ const TabBarIcon = memo(
   }
 );
 
+TabBarIcon.displayName = "TabBarIcon";
+
 export default function TabLayout() {
   // Memoize tab bar icon functions to prevent infinite re-renders
   const renderHomeIcon = useCallback(
     ({ focused }: { focused: boolean }) => (
       <TabBarIcon title="Home" icon="home-outline" focused={focused} />
-    ),
-    []
-  );
-
-  const renderSearchIcon = useCallback(
-    ({ focused }: { focused: boolean }) => (
-      <TabBarIcon title="Search" icon="search-outline" focused={focused} />
-    ),
-    []
-  );
-
-  const renderCartIcon = useCallback(
-    ({ focused }: { focused: boolean }) => (
-      <TabBarIcon title="Cart" icon="bag-outline" focused={focused} />
-    ),
-    []
-  );
-
-  const renderProfileIcon = useCallback(
-    ({ focused }: { focused: boolean }) => (
-      <TabBarIcon title="Profile" icon="person-outline" focused={focused} />
     ),
     []
   );
@@ -138,22 +119,13 @@ export default function TabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          title: "Search",
-          tabBarIcon: renderSearchIcon,
+          href: null, // Hide from tab bar, route redirects to index
         }}
       />
       <Tabs.Screen
         name="cart"
         options={{
-          title: "Cart",
-          tabBarIcon: renderCartIcon,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: renderProfileIcon,
+          href: null, // Hide from tab bar but keep route accessible for navigation
         }}
       />
     </Tabs>

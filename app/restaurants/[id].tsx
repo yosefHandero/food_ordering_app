@@ -1,41 +1,47 @@
-import { View, Text, ScrollView, Image, Platform, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, router } from 'expo-router';
-import { useState } from 'react';
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
+import {
+  Dimensions,
+  Image,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import Animated, {
+  Extrapolate,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
-  interpolate,
-  Extrapolate,
-} from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
-import { Badge } from '@/components/ui/Badge';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import CartButton from '@/components/CartButton';
+} from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const HEADER_HEIGHT = 300;
 
 // Mock restaurant data - replace with actual API call
 const mockRestaurant = {
-  id: '1',
-  name: 'Burger Paradise',
-  imageUrl: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add',
+  id: "1",
+  name: "Burger Paradise",
+  imageUrl: "https://images.unsplash.com/photo-1571091718767-18b5b1457add",
   rating: 4.8,
-  deliveryTime: '25-35 min',
-  distance: '2.5 km',
-  cuisine: 'American',
-  description: 'Juicy burgers, crispy fries, and refreshing drinks',
+  deliveryTime: "25-35 min",
+  distance: "2.5 km",
+  cuisine: "American",
+  description: "Juicy burgers, crispy fries, and refreshing drinks",
   menu: [
-    { id: '1', name: 'Classic Burger', price: 12.99, image: '' },
-    { id: '2', name: 'Cheese Burger', price: 14.99, image: '' },
+    { id: "1", name: "Classic Burger", price: 12.99, image: "" },
+    { id: "2", name: "Cheese Burger", price: 14.99, image: "" },
   ],
 };
 
 export default function RestaurantDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState('popular');
+  const [activeTab, setActiveTab] = useState("popular");
   const scrollY = useSharedValue(0);
 
   const headerAnimatedStyle = useAnimatedStyle(() => {
@@ -69,26 +75,26 @@ export default function RestaurantDetail() {
     };
   });
 
-  const tabs = ['Popular', 'Meals', 'Drinks', 'Dessert'];
+  const tabs = ["Popular", "Meals", "Drinks", "Dessert"];
 
   return (
-    <SafeAreaView className="flex-1 bg-bg-primary" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-bg-primary" edges={["top"]}>
       {/* Sticky Header */}
       <Animated.View
         style={[
           stickyHeaderStyle,
           {
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,
             zIndex: 100,
-            paddingTop: Platform.OS === 'ios' ? 50 : 20,
+            paddingTop: Platform.OS === "ios" ? 50 : 20,
             paddingBottom: 16,
             paddingHorizontal: 20,
-            backgroundColor: '#1A1A1A',
+            backgroundColor: "#1A1A1A",
             borderBottomWidth: 1,
-            borderBottomColor: '#242424',
+            borderBottomColor: "#242424",
           },
         ]}
       >
@@ -105,7 +111,6 @@ export default function RestaurantDetail() {
               {mockRestaurant.name}
             </Text>
           </View>
-          <CartButton />
         </View>
       </Animated.View>
 
@@ -128,29 +133,29 @@ export default function RestaurantDetail() {
         >
           <Image
             source={{ uri: mockRestaurant.imageUrl }}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: "100%", height: "100%" }}
             resizeMode="cover"
           />
           <View
             style={{
-              position: 'absolute',
+              position: "absolute",
               bottom: 0,
               left: 0,
               right: 0,
-              height: '60%',
-              backgroundColor: 'rgba(0,0,0,0.7)',
+              height: "60%",
+              backgroundColor: "rgba(0,0,0,0.7)",
             }}
           />
           <View
             style={{
-              position: 'absolute',
-              top: Platform.OS === 'ios' ? 50 : 20,
+              position: "absolute",
+              top: Platform.OS === "ios" ? 50 : 20,
               left: 0,
               right: 0,
               paddingHorizontal: 20,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
             <Button
@@ -160,18 +165,19 @@ export default function RestaurantDetail() {
               leftIcon="arrow-back"
               size="sm"
             />
-            <CartButton />
           </View>
           <View
             style={{
-              position: 'absolute',
+              position: "absolute",
               bottom: 0,
               left: 0,
               right: 0,
               padding: 20,
             }}
           >
-            <Text className="h1-bold text-white mb-2">{mockRestaurant.name}</Text>
+            <Text className="h1-bold text-white mb-2">
+              {mockRestaurant.name}
+            </Text>
             <View className="flex-row items-center gap-3 flex-wrap">
               <Badge
                 label={`${mockRestaurant.rating} ⭐`}
@@ -195,7 +201,7 @@ export default function RestaurantDetail() {
         </Animated.View>
 
         {/* Content */}
-        <View className="px-5 pt-6 pb-32">
+        <View className="px-5 pt-6 pb-32" style={{ paddingBottom: 120 }}>
           <Text className="paragraph-medium text-text-secondary mb-6">
             {mockRestaurant.description}
           </Text>
@@ -212,7 +218,7 @@ export default function RestaurantDetail() {
                 key={tab}
                 title={tab}
                 onPress={() => setActiveTab(tab.toLowerCase())}
-                variant={activeTab === tab.toLowerCase() ? 'primary' : 'ghost'}
+                variant={activeTab === tab.toLowerCase() ? "primary" : "ghost"}
                 size="sm"
               />
             ))}
@@ -224,7 +230,9 @@ export default function RestaurantDetail() {
               <Card
                 key={item.id}
                 variant="elevated"
-                onPress={() => router.push(`/restaurants/${id}/menu/${item.id}`)}
+                onPress={() =>
+                  router.push(`/restaurants/${id}/menu/${item.id}`)
+                }
               >
                 <View className="flex-row items-center gap-4">
                   <View className="w-20 h-20 bg-bg-elevated rounded-xl" />
@@ -246,4 +254,3 @@ export default function RestaurantDetail() {
     </SafeAreaView>
   );
 }
-

@@ -1,4 +1,5 @@
 // Updated for Supabase - removed Models.Document dependency
+import { ImageSourcePropType } from 'react-native';
 
 export interface MenuItem {
     $id: string; // Supabase uses 'id' but we keep $id for compatibility
@@ -66,7 +67,7 @@ export interface CartStore {
 
 interface TabBarIconProps {
     focused: boolean;
-    icon: ImageSourcePropType;
+    icon: ImageSourcePropType | string;
     title: string;
 }
 
@@ -77,32 +78,10 @@ interface PaymentInfoStripeProps {
     valueStyle?: string;
 }
 
-interface CustomButtonProps {
-    onPress?: () => void;
-    title?: string;
-    style?: string;
-    leftIcon?: React.ReactNode;
-    textStyle?: string;
-    isLoading?: boolean;
-}
-
-interface CustomHeaderProps {
-    title?: string;
-}
-
-interface CustomInputProps {
-    placeholder?: string;
-    value?: string;
-    onChangeText?: (text: string) => void;
-    label: string;
-    secureTextEntry?: boolean;
-    keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
-}
-
 interface ProfileFieldProps {
     label: string;
     value: string;
-    icon: ImageSourcePropType;
+    icon: ImageSourcePropType | string;
 }
 
 interface CreateUserParams {
@@ -119,4 +98,67 @@ interface SignInParams {
 interface GetMenuParams {
     category?: string;
     query?: string;
+}
+
+// Healthy Picks Recommendation Types
+export type HealthGoal = 'high-protein' | 'low-cal' | 'balanced' | 'low-carb';
+export type TimeOfDay = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+
+export interface RecommendationRequest {
+  goal: HealthGoal;
+  timeOfDay: TimeOfDay;
+  lastMeal?: string | null;
+  lastMealTime?: string | null; // e.g., "2h ago", "10:30am", etc
+  activityLevel?: "sedentary" | "light" | "workout" | null;
+  lastMealHeaviness?: "light" | "medium" | "heavy" | null;
+  budgetMax: number;
+  radiusMiles: number; // in miles (renamed from radius)
+  lat: number; // renamed from latitude
+  lng: number; // renamed from longitude
+}
+
+export interface RecommendationResponse {
+  context: {
+    guidancePreview: string;
+    avoidChips: string[];
+  };
+  results: RecommendationResult[];
+}
+
+export interface RecommendationResult {
+  restaurant: {
+    id: string;
+    name: string;
+    cuisine?: string;
+    rating?: number;
+    distanceMiles?: number;
+    deliveryTime?: string;
+  };
+  item: {
+    id: string;
+    name: string;
+    price: number;
+    calories?: number;
+    protein?: number;
+    sodium_mg?: number;
+    sugar?: number;
+    health_score?: number;
+  };
+  why: string; // 1–2 lines
+  scores: {
+    total: number;
+    health: number;
+    goalFit: number;
+    timeFit: number;
+    lastMealFit: number;
+    priceFit: number;
+    distanceFit: number;
+  };
+}
+
+export interface Offer {
+  id: number;
+  title: string;
+  image: any; // ImageSourcePropType from react-native
+  color: string;
 }

@@ -1,11 +1,10 @@
-import CartButton from "@/components/CartButton";
 import CartItem from "@/components/CartItem";
+import { PaymentInfoRow } from "@/components/PaymentInfoRow";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import useAuthStore from "@/store/auth.state";
 import { useCartStore } from "@/store/cart.store";
 import { Ionicons } from "@expo/vector-icons";
-import cn from "clsx";
 import { router } from "expo-router";
 import { Alert, FlatList, Platform, Text, View } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
@@ -13,51 +12,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-const PaymentInfoRow = ({
-  label,
-  value,
-  isTotal = false,
-}: {
-  label: string;
-  value: string;
-  isTotal?: boolean;
-}) => (
-  <View className="flex-row items-center justify-between my-2">
-    <Text
-      className={cn(
-        "paragraph-medium",
-        isTotal
-          ? "text-text-primary font-quicksand-bold"
-          : "text-text-secondary"
-      )}
-    >
-      {label}
-    </Text>
-    <Text
-      className={cn(
-        "paragraph-semibold",
-        isTotal ? "text-text-primary" : "text-text-primary"
-      )}
-    >
-      {value}
-    </Text>
-  </View>
-);
-
-const Cart = () => {
+function Cart() {
   const { items, getTotalItems, getTotalPrice } = useCartStore();
 
   const totalItems = getTotalItems();
   const totalPrice = getTotalPrice();
   const deliveryFee = 5.0;
-  const discount = 0.5;
+  const discount = 0; // No discount by default (can be added via promo code in checkout)
   const finalTotal = totalPrice + deliveryFee - discount;
 
   return (
     <SafeAreaView className="bg-bg-primary h-full" edges={["top"]}>
       <View className="flex-row items-center justify-between px-5 py-4">
         <Text className="h2-bold text-text-primary">Your Cart</Text>
-        <CartButton />
       </View>
 
       <FlatList
@@ -71,7 +38,7 @@ const Cart = () => {
           </AnimatedView>
         )}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 200 }}
+        contentContainerStyle={{ paddingBottom: 120 }}
         ListEmptyComponent={() => (
           <AnimatedView
             entering={FadeIn.duration(300)}
@@ -86,7 +53,7 @@ const Cart = () => {
             </Text>
             <Button
               title="Browse Menu"
-              onPress={() => router.push("/search")}
+              onPress={() => router.push("/")}
               variant="primary"
             />
           </AnimatedView>
@@ -205,6 +172,6 @@ const Cart = () => {
       )}
     </SafeAreaView>
   );
-};
+}
 
 export default Cart;

@@ -1,46 +1,54 @@
-import { View, Text, ScrollView, Image, Platform, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, router } from 'expo-router';
-import { useState } from 'react';
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import useAuthStore from "@/store/auth.state";
+import { useCartStore } from "@/store/cart.store";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useState } from "react";
+import {
+  Alert,
+  Dimensions,
+  Image,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
-  withTiming,
   withSequence,
-} from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { useCartStore } from '@/store/cart.store';
-import useAuthStore from '@/store/auth.state';
-import { Alert } from 'react-native';
+  withSpring,
+} from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 // Mock dish data - replace with actual API call
 const mockDish = {
-  id: '1',
-  name: 'Classic Burger',
+  id: "1",
+  name: "Classic Burger",
   price: 12.99,
-  imageUrl: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add',
-  description: 'Juicy beef patty with fresh lettuce, tomatoes, onions, and our special sauce',
+  imageUrl: "https://images.unsplash.com/photo-1571091718767-18b5b1457add",
+  description:
+    "Juicy beef patty with fresh lettuce, tomatoes, onions, and our special sauce",
   rating: 4.8,
   calories: 650,
   protein: 35,
   customization: {
-    size: ['Regular', 'Large'],
+    size: ["Regular", "Large"],
     extras: [
-      { name: 'Extra Cheese', price: 1.5 },
-      { name: 'Bacon', price: 2.0 },
-      { name: 'Avocado', price: 1.5 },
+      { name: "Extra Cheese", price: 1.5 },
+      { name: "Bacon", price: 2.0 },
+      { name: "Avocado", price: 1.5 },
     ],
   },
 };
 
 export default function DishDetail() {
-  const { dishId } = useLocalSearchParams<{ dishId: string }>();
+  // dishId available if needed for API calls
+  // const { dishId } = useLocalSearchParams<{ dishId: string }>();
   const [quantity, setQuantity] = useState(1);
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const { addItem } = useCartStore();
@@ -49,19 +57,17 @@ export default function DishDetail() {
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {
-      Alert.alert(
-        'Login Required',
-        'Please log in to order items.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Login', onPress: () => router.push('/sign-in') },
-        ]
-      );
+      Alert.alert("Login Required", "Please log in to order items.", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Login", onPress: () => router.push("/sign-in") },
+      ]);
       return;
     }
 
     const extrasPrice = selectedExtras.reduce((total, extraName) => {
-      const extra = mockDish.customization.extras.find((e) => e.name === extraName);
+      const extra = mockDish.customization.extras.find(
+        (e) => e.name === extraName
+      );
       return total + (extra?.price || 0);
     }, 0);
 
@@ -74,8 +80,10 @@ export default function DishDetail() {
         customization: selectedExtras.map((name) => ({
           id: name,
           name,
-          price: mockDish.customization.extras.find((e) => e.name === name)?.price || 0,
-          type: 'extra',
+          price:
+            mockDish.customization.extras.find((e) => e.name === name)?.price ||
+            0,
+          type: "extra",
         })),
       });
     }
@@ -86,16 +94,24 @@ export default function DishDetail() {
       withSpring(1, { damping: 8 })
     );
 
-    Alert.alert('Added to Cart', `${quantity} ${mockDish.name} added to your cart!`);
+    Alert.alert(
+      "Added to Cart",
+      `${quantity} ${mockDish.name} added to your cart!`
+    );
   };
 
-  const totalPrice = (mockDish.price + selectedExtras.reduce((sum, name) => {
-    const extra = mockDish.customization.extras.find((e) => e.name === name);
-    return sum + (extra?.price || 0);
-  }, 0)) * quantity;
+  const totalPrice =
+    (mockDish.price +
+      selectedExtras.reduce((sum, name) => {
+        const extra = mockDish.customization.extras.find(
+          (e) => e.name === name
+        );
+        return sum + (extra?.price || 0);
+      }, 0)) *
+    quantity;
 
   return (
-    <SafeAreaView className="flex-1 bg-bg-primary" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-bg-primary" edges={["top"]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Hero Image */}
         <Animated.View
@@ -111,18 +127,18 @@ export default function DishDetail() {
         >
           <Image
             source={{ uri: mockDish.imageUrl }}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: "100%", height: "100%" }}
             resizeMode="cover"
           />
           <View
             style={{
-              position: 'absolute',
-              top: Platform.OS === 'ios' ? 50 : 20,
+              position: "absolute",
+              top: Platform.OS === "ios" ? 50 : 20,
               left: 0,
               right: 0,
               paddingHorizontal: 20,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
+              flexDirection: "row",
+              justifyContent: "space-between",
             }}
           >
             <Button
@@ -139,10 +155,14 @@ export default function DishDetail() {
         </Animated.View>
 
         {/* Content */}
-        <View className="px-5 pt-6 pb-32">
+        <View className="px-5 pt-6" style={{ paddingBottom: 120 }}>
           <View className="flex-row items-center justify-between mb-3">
             <Text className="h1-bold text-text-primary">{mockDish.name}</Text>
-            <Badge label={`${mockDish.rating} ⭐`} variant="warning" size="sm" />
+            <Badge
+              label={`${mockDish.rating} ⭐`}
+              variant="warning"
+              size="sm"
+            />
           </View>
 
           <Text className="paragraph-medium text-text-secondary mb-4">
@@ -191,8 +211,8 @@ export default function DishDetail() {
                             setSelectedExtras([...selectedExtras, extra.name]);
                           }
                         }}
-                        variant={isSelected ? 'primary' : 'ghost'}
-                        leftIcon={isSelected ? 'checkmark' : 'add'}
+                        variant={isSelected ? "primary" : "ghost"}
+                        leftIcon={isSelected ? "checkmark" : "add"}
                         size="sm"
                       />
                     </View>
@@ -238,4 +258,3 @@ export default function DishDetail() {
     </SafeAreaView>
   );
 }
-
