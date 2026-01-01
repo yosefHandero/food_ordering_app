@@ -60,7 +60,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
           {
             width: "100%",
             height: "100%",
-            backgroundColor: "#242424",
+            backgroundColor: "#F0EFEB",
           },
           animatedStyle,
         ]}
@@ -71,7 +71,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
             position: "absolute",
             width: "50%",
             height: "100%",
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            backgroundColor: "rgba(230, 57, 70, 0.1)",
             transform: [{ skewX: "-20deg" }],
           },
           animatedStyle,

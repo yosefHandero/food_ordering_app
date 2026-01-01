@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { createUser } from "@/lib/supabase-auth";
 import useAuthStore from "@/store/auth.state";
 import { Link, Redirect, router } from "expo-router";
 import { useState } from "react";
@@ -62,13 +61,9 @@ const SignUp = () => {
     setErrors({});
 
     try {
-      await createUser({
-        email: form.email.trim(),
-        password: form.password,
-        name: form.name.trim(),
-      });
-      await useAuthStore.getState().fetchAuthenticatedUser();
-      router.replace("/");
+      // User creation functionality has been removed (Supabase dependency removed)
+      // TODO: Implement user creation with your new backend
+      Alert.alert("Error", "User registration is not available. Please implement a new authentication system.");
     } catch (error: any) {
       const errorMessage = error.message || "Failed to create account";
       if (

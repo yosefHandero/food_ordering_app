@@ -1,42 +1,45 @@
 /**
- * Supabase Database Seeding Script
+ * Database Seeding Script
  * 
- * This script seeds the food ordering app database with realistic mock data.
- * It uses the Supabase service role key to bypass RLS policies.
+ * ⚠️ DISABLED: This script has been disabled because Supabase has been removed.
+ * This script needs to be rewritten to work with your new backend.
  * 
- * Usage: npm run seed:db
+ * Original script seeded the food ordering app database with realistic mock data.
  * 
- * Required environment variables:
- * - SUPABASE_URL: Your Supabase project URL
- * - SUPABASE_SERVICE_ROLE_KEY: Your Supabase service role key (from Settings > API)
+ * Usage: npm run seed:db (currently disabled)
  * 
- * Note: This script uses upsert operations, so it can be run multiple times safely.
+ * TODO: Rewrite this script to work with your new backend/database solution.
  */
 
-import { createClient } from '@supabase/supabase-js';
-import * as dotenv from 'dotenv';
+// import { createClient } from '@supabase/supabase-js';
+// import * as dotenv from 'dotenv';
 
 // Load environment variables from .env.local
-dotenv.config({ path: '.env.local' });
+// dotenv.config({ path: '.env.local' });
 
-const supabaseUrl = process.env.SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Script disabled - Supabase removed
+console.error('❌ This seeding script has been disabled because Supabase has been removed.');
+console.error('   Please rewrite this script to work with your new backend.');
+process.exit(1);
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  console.error('❌ Missing required environment variables:');
-  console.error('   SUPABASE_URL or EXPO_PUBLIC_SUPABASE_URL');
-  console.error('   SUPABASE_SERVICE_ROLE_KEY');
-  console.error('\nPlease add these to your .env.local file.');
-  process.exit(1);
-}
+// const supabaseUrl = process.env.SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL;
+// const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// if (!supabaseUrl || !supabaseServiceRoleKey) {
+//   console.error('❌ Missing required environment variables:');
+//   console.error('   SUPABASE_URL or EXPO_PUBLIC_SUPABASE_URL');
+//   console.error('   SUPABASE_SERVICE_ROLE_KEY');
+//   console.error('\nPlease add these to your .env.local file.');
+//   process.exit(1);
+// }
 
 // Create Supabase client with service role key (bypasses RLS)
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
+// const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
+//   auth: {
+//     autoRefreshToken: false,
+//     persistSession: false,
+//   },
+// });
 
 // Helper function to generate random UUID-like string (for consistent seeding)
 function generateId(seed: string): string {
@@ -206,6 +209,7 @@ function generateReview(userId: string, restaurantId: string, menuItemId: string
 }
 
 async function seed() {
+  // Script disabled - this function will never be reached due to exit(1) above
   console.log('🌱 Starting database seeding...\n');
 
   try {

@@ -30,7 +30,7 @@ export const Input: React.FC<InputProps> = ({
 
   const animatedBorderStyle = useAnimatedStyle(() => {
     return {
-      borderColor: borderColor.value === 1 ? '#FF6B35' : error ? '#FF3366' : 'rgba(255, 255, 255, 0.1)',
+      borderColor: borderColor.value === 1 ? '#E63946' : error ? '#E63946' : '#F0EFEB',
     };
   });
 
@@ -59,14 +59,14 @@ export const Input: React.FC<InputProps> = ({
           {
             borderWidth: 1,
             borderRadius: 16,
-            backgroundColor: '#1A1A1A',
+            backgroundColor: '#FFFFFF',
             flexDirection: 'row',
             alignItems: 'center',
             paddingHorizontal: 16,
             minHeight: 56,
           },
           isFocused && {
-            shadowColor: '#FF6B35',
+            shadowColor: '#E63946',
             shadowOffset: { width: 0, height: 0 },
             shadowOpacity: 0.3,
             shadowRadius: 8,
@@ -78,7 +78,7 @@ export const Input: React.FC<InputProps> = ({
           <Ionicons
             name={leftIcon}
             size={20}
-            color={isFocused ? '#FF6B35' : '#808080'}
+            color={isFocused ? '#E63946' : '#878787'}
             style={{ marginRight: 12 }}
           />
         )}
@@ -87,7 +87,7 @@ export const Input: React.FC<InputProps> = ({
             'flex-1 text-base font-quicksand-medium text-text-primary',
             className
           )}
-          placeholderTextColor="#808080"
+          placeholderTextColor="#878787"
           onFocus={handleFocus}
           onBlur={handleBlur}
           {...props}
@@ -96,7 +96,7 @@ export const Input: React.FC<InputProps> = ({
           <Ionicons
             name={rightIcon}
             size={20}
-            color={isFocused ? '#FF6B35' : '#808080'}
+            color={isFocused ? '#E63946' : '#878787'}
             onPress={onRightIconPress}
             style={{ marginLeft: 12 }}
           />

@@ -2,7 +2,6 @@ import { PaymentInfoRow } from "@/components/PaymentInfoRow";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { createOrder, getDishById } from "@/lib/supabase-data";
 import useAuthStore from "@/store/auth.state";
 import { useCartStore } from "@/store/cart.store";
 import { Ionicons } from "@expo/vector-icons";
@@ -61,62 +60,9 @@ export default function Checkout() {
         return;
       }
 
-      // Validate that all item IDs are valid UUIDs (Supabase format)
-      // Bug fix: Items from mock dish detail page use string IDs like '1' instead of UUIDs.
-      // Items from MenuCard use item.$id (real UUID). This validation prevents order placement
-      // failures when cart contains items with invalid IDs.
-      const uuidRegex =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      const invalidItems = items.filter((item) => !uuidRegex.test(item.id));
-
-      if (invalidItems.length > 0) {
-        Alert.alert(
-          "Invalid Items",
-          "Some items in your cart are not valid. Please remove items added from mock pages and add them from the menu instead.",
-          [{ text: "OK" }]
-        );
-        return;
-      }
-
-      // Try to get restaurant_id from items, starting with the first one
-      let restaurantId: string | null = null;
-      let lastError: Error | null = null;
-
-      for (const item of items) {
-        try {
-          const menuItem = await getDishById(item.id);
-          if (menuItem?.restaurant_id) {
-            restaurantId = menuItem.restaurant_id;
-            break; // Found valid restaurant_id, exit loop
-          }
-        } catch (error: any) {
-          lastError = error;
-          // Continue to next item
-        }
-      }
-
-      if (!restaurantId) {
-        Alert.alert(
-          "Error",
-          lastError?.message ||
-            "Unable to determine restaurant for this order. Please ensure all items are valid menu items."
-        );
-        return;
-      }
-
-      await createOrder({
-        user_id: user.$id,
-        restaurant_id: restaurantId,
-        items: items.map((item) => ({
-          menu_item_id: item.id,
-          quantity: item.quantity,
-          price: item.price,
-          customizations: item.customization || [],
-        })),
-        total: finalTotal,
-        delivery_address: deliveryAddress,
-        delivery_fee: deliveryFee,
-      });
+      // Order creation functionality has been removed (Supabase dependency removed)
+      // For now, just show a success message
+      // TODO: Implement order creation with your new backend
 
       Alert.alert(
         "Order Placed!",
@@ -152,7 +98,7 @@ export default function Checkout() {
           <View style={{ width: 40 }} />
         </View>
         <View className="flex-1 items-center justify-center px-5">
-          <Ionicons name="bag-outline" size={80} color="#808080" />
+          <Ionicons name="bag-outline" size={80} color="#878787" />
           <Text className="h3-bold text-text-primary mt-6 mb-2">
             Your cart is empty
           </Text>
@@ -220,7 +166,7 @@ export default function Checkout() {
                     <Ionicons
                       name="checkmark-circle"
                       size={24}
-                      color="#00FF88"
+                      color="#2A9D8F"
                     />
                   </View>
                 )}

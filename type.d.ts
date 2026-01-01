@@ -1,9 +1,8 @@
-// Updated for Supabase - removed Models.Document dependency
 import { ImageSourcePropType } from 'react-native';
 
 export interface MenuItem {
-    $id: string; // Supabase uses 'id' but we keep $id for compatibility
-    id?: string; // Supabase native id
+    $id: string;
+    id?: string;
     name: string;
     price: number;
     image_url: string;
@@ -19,8 +18,8 @@ export interface MenuItem {
 }
 
 export interface Category {
-    $id: string; // Supabase uses 'id' but we keep $id for compatibility
-    id?: string; // Supabase native id
+    $id: string;
+    id?: string;
     name: string;
     description?: string;
     image_url?: string;
@@ -28,8 +27,8 @@ export interface Category {
 }
 
 export interface User {
-    $id: string; // Supabase uses 'id' but we keep $id for compatibility
-    id?: string; // Supabase native id
+    $id: string;
+    id?: string;
     name: string;
     email: string;
     avatar: string;
@@ -118,11 +117,9 @@ export interface RecommendationRequest {
 }
 
 export interface RecommendationResponse {
-  context: {
-    guidancePreview: string;
-    avoidChips: string[];
-  };
+  context: string; // Guidance text (extracted from generateContextGuidance)
   results: RecommendationResult[];
+  warning?: string; // Optional warning message
 }
 
 export interface RecommendationResult {

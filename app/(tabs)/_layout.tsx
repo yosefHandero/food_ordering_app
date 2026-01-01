@@ -39,7 +39,7 @@ const TabBarIcon = memo(
           <Ionicons
             name={icon}
             size={24}
-            color={focused ? "#FF6B35" : "#808080"}
+            color={focused ? "#E63946" : "#878787"}
           />
         </AnimatedView>
         <Text
@@ -88,9 +88,9 @@ export default function TabLayout() {
           height: 90,
           position: "absolute",
           bottom: 0,
-          backgroundColor: "#1A1A1A",
+          backgroundColor: "#FFFFFF",
           borderTopWidth: 1,
-          borderTopColor: "#242424",
+          borderTopColor: "#F0EFEB",
           paddingTop: 12,
           paddingBottom: 24,
           ...Platform.select({
@@ -105,8 +105,8 @@ export default function TabLayout() {
             },
           }),
         },
-        tabBarActiveTintColor: "#FF6B35",
-        tabBarInactiveTintColor: "#808080",
+        tabBarActiveTintColor: "#E63946",
+        tabBarInactiveTintColor: "#878787",
       }}
     >
       <Tabs.Screen

@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { signIn } from "@/lib/supabase-auth";
 import useAuthStore from "@/store/auth.state";
 import { Link, Redirect, router } from "expo-router";
 import { useState } from "react";
@@ -54,9 +53,9 @@ const SignIn = () => {
     setErrors({});
 
     try {
-      await signIn({ email: form.email.trim(), password: form.password });
-      await useAuthStore.getState().fetchAuthenticatedUser();
-      router.replace("/");
+      // Sign-in functionality has been removed (Supabase dependency removed)
+      // TODO: Implement sign-in with your new backend
+      Alert.alert("Error", "Sign-in is not available. Please implement a new authentication system.");
     } catch (error: any) {
       const errorMessage = error.message || "Sign-in failed";
       if (

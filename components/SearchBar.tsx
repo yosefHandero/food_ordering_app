@@ -82,12 +82,12 @@ const Searchbar = () => {
             right: 0,
             bottom: 0,
             borderRadius: 16,
-            backgroundColor: "#FF6B35",
+            backgroundColor: "#E63946",
             ...Platform.select({
               ios: {
-                shadowColor: "#FF6B35",
+                shadowColor: "#E63946",
                 shadowOffset: { width: 0, height: 0 },
-                shadowOpacity: 1,
+                shadowOpacity: 0.4,
                 shadowRadius: 12,
               },
               android: {
@@ -103,13 +103,13 @@ const Searchbar = () => {
         <Ionicons
           name="search-outline"
           size={20}
-          color={isFocused ? "#FF6B35" : "#808080"}
+          color={isFocused ? "#E63946" : "#878787"}
           style={{ marginRight: 8 }}
         />
         <TextInput
           className="flex-1 text-base font-quicksand-medium text-text-primary"
           placeholder="Search for pizzas, burgers, sushi..."
-          placeholderTextColor="#808080"
+          placeholderTextColor="#878787"
           value={query}
           onChangeText={setQuery}
           onFocus={() => setIsFocused(true)}
@@ -123,7 +123,7 @@ const Searchbar = () => {
         />
         {query.length > 0 && (
           <TouchableOpacity onPress={handleClear} className="ml-2">
-            <Ionicons name="close-circle" size={20} color="#808080" />
+            <Ionicons name="close-circle" size={20} color="#878787" />
           </TouchableOpacity>
         )}
       </View>

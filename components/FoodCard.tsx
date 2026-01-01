@@ -116,7 +116,7 @@ const FoodCard: React.FC<FoodCardProps> = ({
           />
         ) : (
           <View className="w-full h-full bg-bg-elevated items-center justify-center rounded-full">
-            <Ionicons name="image-outline" size={40} color="#808080" />
+            <Ionicons name="image-outline" size={40} color="#878787" />
           </View>
         )}
       </Animated.View>

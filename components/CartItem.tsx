@@ -63,7 +63,7 @@ const CartItem = memo(
                 />
               ) : (
                 <View className="w-full h-full bg-bg-elevated items-center justify-center rounded-xl">
-                  <Ionicons name="image-outline" size={24} color="#808080" />
+                  <Ionicons name="image-outline" size={24} color="#878787" />
                 </View>
               )}
             </View>
@@ -86,7 +86,7 @@ const CartItem = memo(
                   onPressOut={handlePressOut}
                   className="cart-item__actions"
                 >
-                  <Ionicons name="remove" size={16} color="#FF6B35" />
+                  <Ionicons name="remove" size={16} color="#E63946" />
                 </AnimatedTouchable>
 
                 <Text className="base-bold text-text-primary min-w-[24px] text-center">
@@ -99,7 +99,7 @@ const CartItem = memo(
                   onPressOut={handlePressOut}
                   className="cart-item__actions"
                 >
-                  <Ionicons name="add" size={16} color="#FF6B35" />
+                  <Ionicons name="add" size={16} color="#E63946" />
                 </AnimatedTouchable>
 
                 <Text className="paragraph-bold text-text-primary ml-auto">
@@ -113,7 +113,7 @@ const CartItem = memo(
               className="p-2"
               activeOpacity={0.7}
             >
-              <Ionicons name="trash-outline" size={20} color="#FF3366" />
+              <Ionicons name="trash-outline" size={20} color="#E63946" />
             </TouchableOpacity>
           </View>
         </Card>

@@ -42,9 +42,9 @@ export const Card: React.FC<CardProps> = ({
   const baseClasses = cn(
     'rounded-3xl p-5',
     {
-      'bg-bg-tertiary': variant === 'default',
-      'bg-bg-elevated': variant === 'elevated',
-      'bg-bg-tertiary border border-bg-elevated/50': variant === 'outlined',
+      'bg-white': variant === 'default',
+      'bg-white': variant === 'elevated',
+      'bg-white border border-bg-elevated/50': variant === 'outlined',
     },
     className
   );

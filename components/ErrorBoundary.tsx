@@ -51,7 +51,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <Card variant="elevated" className="items-center p-6 max-w-md">
               <View className="items-center mb-4">
                 <View className="bg-accent-error/20 rounded-full p-4 mb-4">
-                  <Ionicons name="alert-circle" size={48} color="#FF3366" />
+                  <Ionicons name="alert-circle" size={48} color="#E63946" />
                 </View>
                 <Text className="h2-bold text-text-primary mb-2 text-center">
                   Something went wrong

@@ -44,7 +44,7 @@ function Cart() {
             entering={FadeIn.duration(300)}
             className="items-center justify-center py-32 px-5"
           >
-            <Ionicons name="bag-outline" size={80} color="#808080" />
+            <Ionicons name="bag-outline" size={80} color="#878787" />
             <Text className="h3-bold text-text-primary mt-6 mb-2">
               Your cart is empty
             </Text>

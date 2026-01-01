@@ -92,9 +92,9 @@ export default function RestaurantDetail() {
             paddingTop: Platform.OS === "ios" ? 50 : 20,
             paddingBottom: 16,
             paddingHorizontal: 20,
-            backgroundColor: "#1A1A1A",
+            backgroundColor: "#FAF9F6",
             borderBottomWidth: 1,
-            borderBottomColor: "#242424",
+            borderBottomColor: "#F0EFEB",
           },
         ]}
       >
@@ -244,7 +244,7 @@ export default function RestaurantDetail() {
                       ${item.price.toFixed(2)}
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#808080" />
+                  <Ionicons name="chevron-forward" size={20} color="#878787" />
                 </View>
               </Card>
             ))}

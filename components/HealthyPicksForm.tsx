@@ -1,9 +1,6 @@
-import { Button } from "@/components/ui/Button";
 import { HealthGoal, TimeOfDay } from "@/type";
-import { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  Alert,
-  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -12,24 +9,24 @@ import {
 } from "react-native";
 
 interface HealthyPicksFormProps {
-  onSubmit: (data: {
-    goal: HealthGoal;
-    timeOfDay: TimeOfDay;
-    lastMeal?: string | null;
-    lastMealTime?: string | null;
-    activityLevel?: "sedentary" | "light" | "workout" | null;
-    lastMealHeaviness?: "light" | "medium" | "heavy" | null;
-    budgetMax: number;
-    radiusMiles: number;
-    lat: number;
-    lng: number;
-  }) => void;
   isLoading: boolean;
+  location: { lat: number; lng: number } | null;
+  onGetFormData: (
+    getData: () => {
+      goal: HealthGoal;
+      timeOfDay: TimeOfDay;
+      lastMeal: string | null;
+      lastMealTime: string | null;
+      budgetMax: number;
+      radiusMiles: number;
+    }
+  ) => void;
 }
 
 export function HealthyPicksForm({
-  onSubmit,
   isLoading,
+  location,
+  onGetFormData,
 }: HealthyPicksFormProps) {
   const [goal, setGoal] = useState<HealthGoal>("balanced");
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>(getDefaultTimeOfDay());
@@ -37,9 +34,6 @@ export function HealthyPicksForm({
   const [lastMealTime, setLastMealTime] = useState("");
   const [budgetMax, setBudgetMax] = useState("30");
   const [radius, setRadius] = useState("5");
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
-    null
-  );
 
   function getDefaultTimeOfDay(): TimeOfDay {
     const hour = new Date().getHours();
@@ -49,94 +43,24 @@ export function HealthyPicksForm({
     return "snack";
   }
 
-  const handleGetLocation = async () => {
-    try {
-      if (Platform.OS === "web") {
-        if (!navigator.geolocation) {
-          Alert.alert("Error", "Geolocation is not supported by your browser");
-          return;
-        }
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-          },
-          (error) => {
-            Alert.alert("Error", `Failed to get location: ${error.message}`);
-          }
-        );
-      } else {
-        // For React Native, we'll use a mock location for now
-        // In production, you'd use expo-location
-        Alert.alert(
-          "Info",
-          "Please install expo-location for native geolocation. Using default location for demo."
-        );
-        setLocation({ lat: 40.7505, lng: -73.9934 }); // Default NYC location
-      }
-    } catch (error: any) {
-      Alert.alert("Error", `Failed to get location: ${error.message}`);
-    }
-  };
-
-  const handleSubmit = () => {
-    // If location is not set, use a random Kansas location as default
-    // But inform the user first
-    if (!location) {
-      // Kansas approximate bounds:
-      // Latitude: 37.0 to 40.0
-      // Longitude: -102.0 to -94.6
-      const kansasLat = 37.0 + Math.random() * (40.0 - 37.0);
-      const kansasLng = -102.0 + Math.random() * (-94.6 - -102.0);
-      const defaultLocation = { lat: kansasLat, lng: kansasLng };
-
-      // Inform user that default location will be used
-      Alert.alert(
-        "Using Default Location",
-        "No location was set. Recommendations will be based on a random location in Kansas. For more accurate results, please use 'Use My Location' to set your actual location.",
-        [
-          {
-            text: "Cancel",
-            style: "cancel",
-          },
-          {
-            text: "Continue",
-            onPress: () => {
-              onSubmit({
-                goal,
-                timeOfDay,
-                lastMeal: lastMeal.trim() || null,
-                lastMealTime: lastMealTime.trim() || null,
-                activityLevel: null,
-                lastMealHeaviness: null,
-                budgetMax: parseFloat(budgetMax) || 30,
-                radiusMiles: parseFloat(radius) || 5,
-                lat: defaultLocation.lat,
-                lng: defaultLocation.lng,
-              });
-            },
-          },
-        ]
-      );
-      return;
-    }
-
-    // Location is set, use it
-    onSubmit({
+  // Expose form data getter for parent component
+  const getFormData = useCallback(
+    () => ({
       goal,
       timeOfDay,
       lastMeal: lastMeal.trim() || null,
       lastMealTime: lastMealTime.trim() || null,
-      activityLevel: null, // Not adding new inputs per requirements
-      lastMealHeaviness: null, // Not adding new inputs per requirements
       budgetMax: parseFloat(budgetMax) || 30,
       radiusMiles: parseFloat(radius) || 5,
-      lat: location.lat,
-      lng: location.lng,
-    });
-  };
+    }),
+    [goal, timeOfDay, lastMeal, lastMealTime, budgetMax, radius]
+  );
+
+  // Expose getFormData to parent via callback
+  useEffect(() => {
+    onGetFormData(getFormData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getFormData]); // onGetFormData is stable from parent, no need to include
 
   // Generate guidance preview text
   const getGuidancePreview = (): string => {
@@ -324,7 +248,7 @@ export function HealthyPicksForm({
             value={lastMeal}
             onChangeText={setLastMeal}
             placeholder="e.g., pizza"
-            placeholderTextColor="#808080"
+            placeholderTextColor="#878787"
             className="bg-bg-primary rounded-2xl p-3 text-text-primary border border-bg-elevated/50"
           />
         </View>
@@ -338,7 +262,7 @@ export function HealthyPicksForm({
             value={lastMealTime}
             onChangeText={setLastMealTime}
             placeholder="e.g., 2h ago"
-            placeholderTextColor="#808080"
+            placeholderTextColor="#878787"
             className="bg-bg-primary rounded-2xl p-3 text-text-primary border border-bg-elevated/50"
           />
         </View>
@@ -381,7 +305,7 @@ export function HealthyPicksForm({
             onChangeText={setBudgetMax}
             keyboardType="numeric"
             placeholder="30"
-            placeholderTextColor="#808080"
+            placeholderTextColor="#878787"
             className="bg-bg-primary rounded-2xl p-3 text-text-primary border border-bg-elevated/50"
           />
         </View>
@@ -396,46 +320,9 @@ export function HealthyPicksForm({
             onChangeText={setRadius}
             keyboardType="numeric"
             placeholder="5"
-            placeholderTextColor="#808080"
+            placeholderTextColor="#878787"
             className="bg-bg-primary rounded-2xl p-3 text-text-primary border border-bg-elevated/50"
           />
-        </View>
-
-        {/* Location */}
-        <View className="mb-4 items-center">
-          <View style={{ maxWidth: 280 }}>
-            <Button
-              title={
-                location
-                  ? `Location: ${location.lat.toFixed(
-                      4
-                    )}, ${location.lng.toFixed(4)}`
-                  : "Use My Location (Recommended)"
-              }
-              onPress={handleGetLocation}
-              variant="secondary"
-              leftIcon="location"
-            />
-            {!location && (
-              <Text className="paragraph-small text-text-tertiary text-center mt-2 px-2">
-                Location not set. Default location will be used if you proceed
-                without setting one.
-              </Text>
-            )}
-          </View>
-        </View>
-
-        {/* Submit Button */}
-        <View className="items-center mb-2">
-          <View style={{ maxWidth: 280, width: "100%" }}>
-            <Button
-              title="Suggest the best healthy meal"
-              onPress={handleSubmit}
-              variant="primary"
-              isLoading={isLoading}
-              fullWidth
-            />
-          </View>
         </View>
       </ScrollView>
     </View>

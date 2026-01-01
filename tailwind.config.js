@@ -6,47 +6,47 @@ module.exports = {
     extend: {
       colors: {
         // Legacy support
-        primary: "#FF6B35",
+        primary: "#E63946",
         white: {
           DEFAULT: "#ffffff",
-          100: "#fafafa",
-          200: "#FE8C00",
+          100: "#FAF9F6",
+          200: "#F4A261",
         },
         gray: {
           100: "#878787",
           200: "#878787",
         },
         dark: {
-          100: "#181C2E",
+          100: "#1E1E1E",
         },
-        error: "#FF3366",
-        success: "#00FF88",
+        error: "#E63946",
+        success: "#2A9D8F",
         
-        // Modern dark-first palette
+        // Premium food app palette
         bg: {
-          primary: "#0A0A0A",
-          secondary: "#121212",
-          tertiary: "#1A1A1A",
-          elevated: "#242424",
+          primary: "#FAF9F6",      // Soft Cream - main background
+          secondary: "#F5F4F1",    // Slightly darker cream for cards
+          tertiary: "#FFFFFF",      // White for elevated surfaces
+          elevated: "#F0EFEB",     // Subtle elevation
         },
         accent: {
-          primary: "#FF6B35",
-          secondary: "#FFB800",
-          tertiary: "#00D4FF",
-          success: "#00FF88",
-          error: "#FF3366",
+          primary: "#E63946",      // Deep Tomato Red - primary CTAs, hunger appeal
+          secondary: "#F4A261",    // Warm Orange - secondary actions, highlights
+          tertiary: "#2A9D8F",     // Fresh Green - freshness indicators, success states
+          success: "#2A9D8F",       // Fresh Green for success
+          error: "#E63946",         // Deep Tomato Red for errors
         },
         text: {
-          primary: "#FFFFFF",
-          secondary: "#B3B3B3",
-          tertiary: "#808080",
-          disabled: "#4A4A4A",
+          primary: "#1E1E1E",      // Charcoal Black - main text
+          secondary: "#4A4A4A",   // Dark gray for secondary text
+          tertiary: "#878787",      // Medium gray for tertiary text
+          disabled: "#B3B3B3",     // Light gray for disabled states
         },
         food: {
-          warm: "#FF8C42",
-          hot: "#FF4444",
-          fresh: "#4ECDC4",
-          sweet: "#FFB6C1",
+          warm: "#F4A261",         // Warm Orange
+          hot: "#E63946",          // Deep Tomato Red
+          fresh: "#2A9D8F",        // Fresh Green
+          sweet: "#F4A261",        // Warm Orange for sweet items
         },
       },
       fontFamily: {
@@ -66,8 +66,10 @@ module.exports = {
         '5xl': '2.5rem',
       },
       boxShadow: {
-        'glow': '0 0 20px rgba(255, 107, 53, 0.5)',
-        'glow-lg': '0 0 40px rgba(255, 107, 53, 0.6)',
+        'glow': '0 0 20px rgba(230, 57, 70, 0.4)',
+        'glow-lg': '0 0 40px rgba(230, 57, 70, 0.5)',
+        'glow-orange': '0 0 20px rgba(244, 162, 97, 0.4)',
+        'glow-green': '0 0 20px rgba(42, 157, 143, 0.4)',
       },
     },
   },

@@ -15,29 +15,40 @@
         @apply flex items-start justify-center;
     }
     
-    /* Modern gradient utilities */
+    /* Premium gradient utilities */
     .gradient-primary {
-        background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 50%, #FFB800 100%);
+        background: linear-gradient(135deg, #E63946 0%, #F4A261 50%, #E63946 100%);
     }
     
-    .gradient-dark {
-        background: linear-gradient(180deg, #0A0A0A 0%, #121212 50%, #1A1A1A 100%);
+    .gradient-warm {
+        background: linear-gradient(135deg, #E63946 0%, #F4A261 100%);
+    }
+    
+    .gradient-fresh {
+        background: linear-gradient(135deg, #2A9D8F 0%, #F4A261 100%);
     }
     
     .gradient-food {
-        background: linear-gradient(135deg, #FF6B35 0%, #FF4444 100%);
+        background: linear-gradient(135deg, #E63946 0%, #F4A261 100%);
     }
     
-    /* Glass morphism */
+    /* Glass morphism - premium cream background */
     .glass {
-        background: rgba(26, 26, 26, 0.8);
+        background: rgba(250, 249, 246, 0.9);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
     }
     
     /* Text gradients */
     .text-gradient {
-        background: linear-gradient(135deg, #FF6B35 0%, #FFB800 100%);
+        background: linear-gradient(135deg, #E63946 0%, #F4A261 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .text-gradient-fresh {
+        background: linear-gradient(135deg, #2A9D8F 0%, #F4A261 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -45,14 +56,15 @@
 }
 
 @layer components {
-    /* Modern button styles */
+    /* Premium button styles */
     .btn-primary {
         @apply bg-accent-primary rounded-full px-6 py-4 flex-row items-center justify-center;
         @apply active:scale-95 transition-transform duration-150;
+        @apply shadow-lg shadow-accent-primary/30;
     }
     
     .btn-secondary {
-        @apply bg-bg-tertiary border border-accent-primary/30 rounded-full px-6 py-4 flex-row items-center justify-center;
+        @apply bg-white border-2 border-accent-primary rounded-full px-6 py-4 flex-row items-center justify-center;
         @apply active:scale-95 transition-transform duration-150;
     }
     
@@ -61,19 +73,21 @@
         @apply active:scale-95 transition-transform duration-150;
     }
     
-    /* Card styles */
+    /* Premium card styles */
     .card {
-        @apply bg-bg-tertiary rounded-3xl p-5 shadow-lg;
+        @apply bg-white rounded-3xl p-5 shadow-md;
+        @apply border border-bg-elevated/30;
     }
     
     .card-elevated {
-        @apply bg-bg-elevated rounded-3xl p-5 shadow-xl;
+        @apply bg-white rounded-3xl p-5 shadow-xl;
+        @apply border border-accent-primary/10;
     }
     
-    /* Modern cart button */
+    /* Premium cart button */
     .cart-btn {
-        @apply flex items-center justify-center size-12 rounded-full bg-bg-elevated;
-        @apply border border-accent-primary/20 shadow-glow;
+        @apply flex items-center justify-center size-12 rounded-full bg-white;
+        @apply border-2 border-accent-primary shadow-lg shadow-accent-primary/20;
     }
 
     .cart-badge {
@@ -82,8 +96,8 @@
     }
 
     .cart-item {
-        @apply flex flex-row items-center justify-between mb-4 bg-bg-tertiary rounded-2xl p-4;
-        @apply border border-bg-elevated/50;
+        @apply flex flex-row items-center justify-between mb-4 bg-white rounded-2xl p-4;
+        @apply border border-bg-elevated/50 shadow-sm;
     }
 
     .cart-item__image {
@@ -91,49 +105,51 @@
     }
 
     .cart-item__actions {
-        @apply flex flex-row items-center justify-center size-8 bg-accent-primary/20 rounded-lg;
-        @apply active:scale-90 transition-transform;
+        @apply flex flex-row items-center justify-center size-8 bg-accent-primary/10 rounded-lg;
+        @apply active:scale-90 transition-transform border border-accent-primary/20;
     }
 
-    /* Modern menu card */
+    /* Premium menu card */
     .menu-card {
         @apply relative py-6 px-4 pt-20 flex items-center justify-end;
-        @apply bg-bg-tertiary rounded-3xl border border-bg-elevated/50;
+        @apply bg-white rounded-3xl border border-bg-elevated/50 shadow-md;
         @apply active:scale-95 transition-transform duration-150;
     }
     
     .menu-card-large {
         @apply relative py-8 px-6 pt-28 flex items-center justify-end;
-        @apply bg-bg-tertiary rounded-3xl border border-bg-elevated/50;
+        @apply bg-white rounded-3xl border border-bg-elevated/50 shadow-lg;
     }
 
-    /* Search bar */
+    /* Premium search bar */
     .searchbar {
         @apply relative flex flex-row items-center w-full;
-        @apply bg-bg-tertiary border border-bg-elevated/50 rounded-full;
+        @apply bg-white border-2 border-bg-elevated/30 rounded-full;
         @apply px-5 py-4 font-quicksand-medium text-text-primary gap-4;
+        @apply shadow-sm;
     }
     
     .searchbar:focus-within {
-        @apply border-accent-primary/50 shadow-glow;
+        @apply border-accent-primary shadow-glow;
     }
 
-    /* Filter chips */
+    /* Premium filter chips */
     .filter-chip {
         @apply px-5 py-3 rounded-full mr-3;
-        @apply border border-bg-elevated/50;
-        @apply active:scale-95 transition-all duration-150;
+        @apply bg-white border-2 border-bg-elevated/30;
+        @apply active:scale-95 transition-all duration-150 shadow-sm;
     }
     
     .filter-chip-active {
-        @apply bg-accent-primary border-accent-primary shadow-glow;
+        @apply bg-accent-primary border-accent-primary shadow-glow text-white;
     }
 
-    /* Offer card */
+    /* Premium offer card */
     .offer-card {
         @apply w-full h-52 my-4 rounded-3xl overflow-hidden;
-        @apply shadow-xl border border-bg-elevated/30;
+        @apply shadow-xl border border-accent-primary/20;
         @apply active:scale-98 transition-transform duration-200;
+        @apply bg-gradient-warm;
     }
 
     .offer-card__info {
@@ -201,17 +217,17 @@
         @apply text-xs font-quicksand-bold text-text-tertiary;
     }
     
-    /* Badge styles */
+    /* Premium badge styles */
     .badge {
         @apply px-3 py-1.5 rounded-full text-xs font-quicksand-semibold;
     }
     
     .badge-primary {
-        @apply bg-accent-primary/20 text-accent-primary border border-accent-primary/30;
+        @apply bg-accent-primary/10 text-accent-primary border border-accent-primary/30;
     }
     
     .badge-success {
-        @apply bg-accent-success/20 text-accent-success border border-accent-success/30;
+        @apply bg-accent-success/10 text-accent-success border border-accent-success/30;
     }
     
     /* Skeleton loader */

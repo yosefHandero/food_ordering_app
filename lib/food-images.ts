@@ -67,6 +67,8 @@ const FOOD_NAME_TO_PHOTO_ID: Record<string, number> = {
   'asian salad': 1211887, // Will use hash from salads array
   'quinoa salad': 32640678, // Healthy vegetable salad with quinoa (specific ID)
   'spinach salad': 1211887, // Will use hash from salads array
+  'grilled chicken salad': 1211887, // Salad with grilled chicken
+  'chicken salad': 1211887, // Chicken salad
   
   // Sushi & Japanese - using hash for uniqueness within category
   'sushi': 1052189,

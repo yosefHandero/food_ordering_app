@@ -1,7 +1,5 @@
 import { create } from 'zustand';
-import { getCurrentUser, signOut as supabaseSignOut } from '@/lib/supabase-auth';
 import { User } from '@/type';
-import { supabase } from '@/lib/supabase';
 
 type AuthState = {
   isAuthenticated: boolean;
@@ -24,58 +22,27 @@ const useAuthStore = create<AuthState>((set) => ({
   setLoading: (value) => set({ isLoading: value }),
 
   fetchAuthenticatedUser: async () => {
-    // Don't set loading - fetch in background
-    try {
-      const user = await getCurrentUser();
-
-      if (user) {
-        set({
-          isAuthenticated: true,
-          user: user,
-          isLoading: false,
-        });
-      } else {
-        set({
-          isAuthenticated: false,
-          user: null,
-          isLoading: false,
-        });
-      }
-      return user;
-    } catch (e) {
-      // Silently fail - allow browsing without auth
-      set({
-        isAuthenticated: false,
-        user: null,
-        isLoading: false,
-      });
-      return null;
-    }
+    // Authentication functionality has been removed (Supabase dependency removed)
+    // TODO: Implement user fetching with your new backend
+    set({
+      isAuthenticated: false,
+      user: null,
+      isLoading: false,
+    });
+    return null;
   },
 
   signOut: async () => {
-    try {
-      await supabaseSignOut();
-      set({
-        isAuthenticated: false,
-        user: null,
-        isLoading: false,
-      });
-    } catch (e) {
-      console.error('Sign out error:', e);
-      throw e;
-    }
+    // Sign out functionality has been removed (Supabase dependency removed)
+    // TODO: Implement sign out with your new backend
+    set({
+      isAuthenticated: false,
+      user: null,
+      isLoading: false,
+    });
   },
 }));
 
-// Listen to auth state changes
-supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_OUT' || !session) {
-    useAuthStore.getState().setIsAuthenticated(false);
-    useAuthStore.getState().setUser(null);
-  } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-    useAuthStore.getState().fetchAuthenticatedUser();
-  }
-});
+// Auth state change listener removed (Supabase dependency removed)
 
 export default useAuthStore;

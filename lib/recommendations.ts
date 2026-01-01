@@ -1,5 +1,4 @@
 import { RecommendationRequest, RecommendationResult } from '@/type';
-import { supabase, TABLES } from './supabase';
 
 /**
  * Parse last meal time string to hours ago
@@ -93,92 +92,11 @@ export async function getNearbyRestaurantsAndMenuItems(
   radiusMiles: number,
   budgetMax: number
 ) {
-  try {
-    // Convert miles to approximate degrees (rough conversion)
-    // 1 degree latitude ≈ 69 miles
-    // 1 degree longitude ≈ 69 * cos(latitude) miles
-    const latRadius = radiusMiles / 69;
-    const lngRadius = radiusMiles / (69 * Math.cos((latitude * Math.PI) / 180));
-
-    // Query restaurants within bounding box
-    // Note: If latitude/longitude columns don't exist, this will return all restaurants
-    let queryBuilder = supabase.from(TABLES.RESTAURANTS).select('*');
-    
-    // Only filter by location if columns exist (check by trying to filter)
-    // For now, we'll get all restaurants and filter in memory if needed
-    const { data: restaurants, error: restaurantsError } = await queryBuilder;
-
-    if (restaurantsError) throw restaurantsError;
-
-    // Filter by location if latitude/longitude exist
-    const filteredRestaurants = (restaurants || []).filter((r) => {
-      if (r.latitude && r.longitude) {
-        return (
-          r.latitude >= latitude - latRadius &&
-          r.latitude <= latitude + latRadius &&
-          r.longitude >= longitude - lngRadius &&
-          r.longitude <= longitude + lngRadius
-        );
-      }
-      // If no coordinates, include all (for development)
-      return true;
-    });
-
-    if (!filteredRestaurants || filteredRestaurants.length === 0) {
-      return { restaurants: [], menuItems: [] };
-    }
-
-    const restaurantIds = filteredRestaurants.map((r) => r.id);
-
-    // Get menu items for these restaurants within budget
-    const { data: menuItems, error: menuItemsError } = await supabase
-      .from(TABLES.MENU_ITEMS)
-      .select('*')
-      .in('restaurant_id', restaurantIds)
-      .lte('price', budgetMax);
-    
-    // Note: Removed .order('rating') as menu_items may not have a rating column
-    // Items will be sorted by health score later in the ranking process
-
-    if (menuItemsError) throw menuItemsError;
-
-    // Calculate distances and health scores
-    const restaurantsWithDistance = filteredRestaurants.map((restaurant) => {
-      const distance = restaurant.latitude && restaurant.longitude
-        ? calculateDistance(
-            latitude,
-            longitude,
-            restaurant.latitude,
-            restaurant.longitude
-          )
-        : parseFloat(restaurant.distance?.replace(' km', '') || '1') * 0.621371; // Convert km to miles if distance is in km
-      return {
-        ...restaurant,
-        distanceMiles: distance,
-        distance: `${distance.toFixed(1)} mi`,
-      };
-    });
-
-    const menuItemsWithHealth = (menuItems || []).map((item) => ({
-      ...item,
-      healthScore: calculateHealthScore({
-        calories: item.calories,
-        protein: item.protein,
-        carbs: item.carbs,
-        fat: item.fat,
-        fiber: item.fiber,
-        sugar: item.sugar,
-        sodium_mg: item.sodium_mg,
-      }),
-    }));
-
-    return {
-      restaurants: restaurantsWithDistance,
-      menuItems: menuItemsWithHealth,
-    };
-  } catch (error: any) {
-    throw new Error(`Failed to fetch nearby restaurants: ${error.message}`);
-  }
+  // Return empty data since Supabase has been removed
+  return {
+    restaurants: [],
+    menuItems: [],
+  };
 }
 
 /**
@@ -470,6 +388,155 @@ export function generateContextGuidance(request: RecommendationRequest): {
 }
 
 /**
+ * Normalize menu item name for comparison (remove extra spaces, lowercase, etc.)
+ */
+function normalizeItemName(name: string): string {
+  return name.toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+/**
+ * Select the best restaurant when multiple restaurants have the same menu item.
+ * Priority: 1) Less calories (or nearest location), 2) More protein, 3) Better rating, 4) Better price, 5) Random
+ */
+function selectBestRestaurantForItem(
+  candidates: Array<{ restaurant: any; item: any }>,
+  userLat?: number,
+  userLng?: number
+): { restaurant: any; item: any } {
+  if (candidates.length === 1) {
+    return candidates[0];
+  }
+
+  // Helper to calculate distance if we have user location
+  const getDistance = (restaurant: any): number => {
+    if (userLat !== undefined && userLng !== undefined && restaurant.lat && restaurant.lng) {
+      const R = 3959; // Earth's radius in miles
+      const dLat = ((restaurant.lat - userLat) * Math.PI) / 180;
+      const dLon = ((restaurant.lng - userLng) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((userLat * Math.PI) / 180) *
+          Math.cos((restaurant.lat * Math.PI) / 180) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+    // Fall back to distanceMiles if available, otherwise use a large number
+    return restaurant.distanceMiles ?? 999;
+  };
+
+  // Sort candidates based on priority criteria
+  const sorted = [...candidates].sort((a, b) => {
+    const itemA = a.item;
+    const itemB = b.item;
+    const restA = a.restaurant;
+    const restB = b.restaurant;
+
+    // 1. Less calories (or nearest location if calories are equal/unknown)
+    const caloriesA = itemA.calories ?? 9999;
+    const caloriesB = itemB.calories ?? 9999;
+    if (caloriesA !== caloriesB) {
+      return caloriesA - caloriesB; // Lower calories is better
+    }
+
+    // If calories are equal or both unknown, prefer nearest location
+    const distanceA = getDistance(restA);
+    const distanceB = getDistance(restB);
+    if (Math.abs(distanceA - distanceB) > 0.1) { // Only if significantly different
+      return distanceA - distanceB; // Closer is better
+    }
+
+    // 2. More protein
+    const proteinA = itemA.protein ?? 0;
+    const proteinB = itemB.protein ?? 0;
+    if (proteinA !== proteinB) {
+      return proteinB - proteinA; // Higher protein is better
+    }
+
+    // 3. Better rating
+    const ratingA = restA.rating ?? 0;
+    const ratingB = restB.rating ?? 0;
+    if (ratingA !== ratingB) {
+      return ratingB - ratingA; // Higher rating is better
+    }
+
+    // 4. Better price (lower is better)
+    const priceA = itemA.price ?? 9999;
+    const priceB = itemB.price ?? 9999;
+    if (priceA !== priceB) {
+      return priceA - priceB; // Lower price is better
+    }
+
+    // 5. Everything is the same - return 0 (will use random selection)
+    return 0;
+  });
+
+  // If all criteria are equal, randomly select from the top candidates
+  const topScore = {
+    calories: sorted[0].item.calories ?? 9999,
+    distance: getDistance(sorted[0].restaurant),
+    protein: sorted[0].item.protein ?? 0,
+    rating: sorted[0].restaurant.rating ?? 0,
+    price: sorted[0].item.price ?? 9999,
+  };
+
+  // Find all candidates with the same top score
+  const topCandidates = sorted.filter(c => {
+    const cCalories = c.item.calories ?? 9999;
+    const cDistance = getDistance(c.restaurant);
+    const cProtein = c.item.protein ?? 0;
+    const cRating = c.restaurant.rating ?? 0;
+    const cPrice = c.item.price ?? 9999;
+
+    return cCalories === topScore.calories &&
+           Math.abs(cDistance - topScore.distance) < 0.1 &&
+           cProtein === topScore.protein &&
+           cRating === topScore.rating &&
+           cPrice === topScore.price;
+  });
+
+  // Randomly select from top candidates if there are ties
+  if (topCandidates.length > 1) {
+    const randomIndex = Math.floor(Math.random() * topCandidates.length);
+    return topCandidates[randomIndex];
+  }
+
+  return sorted[0];
+}
+
+/**
+ * Deduplicate menu items - when multiple restaurants have the same item,
+ * select the best one based on calories, distance, protein, rating, and price.
+ */
+function deduplicateMenuItems(
+  candidates: Array<{ restaurant: any; item: any }>,
+  userLat?: number,
+  userLng?: number
+): Array<{ restaurant: any; item: any }> {
+  // Group candidates by normalized item name
+  const itemsByName = new Map<string, Array<{ restaurant: any; item: any }>>();
+
+  candidates.forEach(candidate => {
+    const normalizedName = normalizeItemName(candidate.item.name);
+    if (!itemsByName.has(normalizedName)) {
+      itemsByName.set(normalizedName, []);
+    }
+    itemsByName.get(normalizedName)!.push(candidate);
+  });
+
+  // For each item name, select the best restaurant
+  const deduplicated: Array<{ restaurant: any; item: any }> = [];
+  
+  itemsByName.forEach((candidatesForItem) => {
+    const best = selectBestRestaurantForItem(candidatesForItem, userLat, userLng);
+    deduplicated.push(best);
+  });
+
+  return deduplicated;
+}
+
+/**
  * Local ranking fallback when OpenAI fails
  */
 export function localRankRecommendations(
@@ -487,6 +554,23 @@ export function localRankRecommendations(
     itemsByRestaurant.get(restaurantId)!.push(item);
   });
 
+  // Prepare all candidates
+  const allCandidates: Array<{ restaurant: any; item: any }> = [];
+  restaurants.forEach((restaurant) => {
+    const items = itemsByRestaurant.get(restaurant.id) || [];
+    if (items.length === 0) return;
+    items.forEach((item) => {
+      allCandidates.push({ restaurant, item });
+    });
+  });
+
+  // Deduplicate: if multiple restaurants have the same menu item, select the best one
+  const deduplicatedCandidates = deduplicateMenuItems(
+    allCandidates,
+    request.lat,
+    request.lng
+  );
+
   // Score and rank all items
   const scored: Array<{
     restaurant: any;
@@ -494,18 +578,12 @@ export function localRankRecommendations(
     scores: ReturnType<typeof calculateContextAwareScores>;
   }> = [];
 
-  restaurants.forEach((restaurant) => {
-    const items = itemsByRestaurant.get(restaurant.id) || [];
-    if (items.length === 0) return;
-
-    // Score all items for this restaurant
-    items.forEach((item) => {
-      const scores = calculateContextAwareScores(item, restaurant, request);
-      scored.push({
-        restaurant,
-        item,
-        scores,
-      });
+  deduplicatedCandidates.forEach(({ restaurant, item }) => {
+    const scores = calculateContextAwareScores(item, restaurant, request);
+    scored.push({
+      restaurant,
+      item,
+      scores,
     });
   });
 

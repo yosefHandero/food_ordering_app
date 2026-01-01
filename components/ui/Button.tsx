@@ -65,8 +65,8 @@ export const Button: React.FC<ButtonProps> = ({
     "flex-row items-center justify-center rounded-full",
     {
       "bg-accent-primary": variant === "primary" && !disabled,
-      "bg-bg-elevated": variant === "primary" && disabled,
-      "bg-bg-tertiary border border-accent-primary/30": variant === "secondary",
+      "bg-text-disabled": variant === "primary" && disabled,
+      "bg-white border-2 border-accent-primary": variant === "secondary",
       "bg-transparent border border-text-tertiary/30": variant === "ghost",
       "opacity-50": isLoading,
       "w-full": fullWidth,
@@ -101,7 +101,7 @@ export const Button: React.FC<ButtonProps> = ({
         Platform.OS === "android" &&
           variant === "primary" && {
             elevation: 4,
-            shadowColor: "#FF6B35",
+            shadowColor: "#E63946",
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
             shadowRadius: 8,
@@ -113,7 +113,7 @@ export const Button: React.FC<ButtonProps> = ({
       {isLoading ? (
         <ActivityIndicator
           size="small"
-          color={variant === "primary" ? "#FFFFFF" : "#FF6B35"}
+          color={variant === "primary" ? "#FFFFFF" : "#E63946"}
         />
       ) : (
         <>
@@ -121,7 +121,7 @@ export const Button: React.FC<ButtonProps> = ({
             <Ionicons
               name={leftIcon}
               size={size === "sm" ? 16 : size === "md" ? 20 : 24}
-              color={variant === "primary" ? "#FFFFFF" : "#FF6B35"}
+              color={variant === "primary" ? "#FFFFFF" : "#E63946"}
               style={{ marginRight: 8 }}
             />
           )}
@@ -130,7 +130,7 @@ export const Button: React.FC<ButtonProps> = ({
             <Ionicons
               name={rightIcon}
               size={size === "sm" ? 16 : size === "md" ? 20 : 24}
-              color={variant === "primary" ? "#FFFFFF" : "#FF6B35"}
+              color={variant === "primary" ? "#FFFFFF" : "#E63946"}
               style={{ marginLeft: 8 }}
             />
           )}
