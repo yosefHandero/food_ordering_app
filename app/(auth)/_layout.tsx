@@ -1,8 +1,8 @@
+import { BurgerLogo } from "@/components/BurgerLogo";
 import { images } from "@/constants";
 import { router, Slot } from "expo-router";
 import {
     Dimensions,
-    Image,
     ImageBackground,
     KeyboardAvoidingView,
     Platform,
@@ -49,11 +49,7 @@ export default function AuthLayout() {
                             className="absolute bottom-0 left-0 right-0 items-center"
                             style={{ paddingBottom: 40 }}
                         >
-                            <Image 
-                                source={images.logo} 
-                                className="size-32" 
-                                resizeMode="contain"
-                            />
+                            <BurgerLogo size={128} />
                         </Pressable>
                     </View>
                     <View className="flex-1 -mt-8">

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import useAuthStore from "@/store/auth.state";
-import { Link, Redirect, router } from "expo-router";
+import { Link, Redirect } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -53,9 +53,10 @@ const SignIn = () => {
     setErrors({});
 
     try {
-      // Sign-in functionality has been removed (Supabase dependency removed)
-      // TODO: Implement sign-in with your new backend
-      Alert.alert("Error", "Sign-in is not available. Please implement a new authentication system.");
+      Alert.alert(
+        "Error",
+        "Sign-in is not available. Please implement a new authentication system."
+      );
     } catch (error: any) {
       const errorMessage = error.message || "Sign-in failed";
       if (
@@ -82,7 +83,7 @@ const SignIn = () => {
         showsVerticalScrollIndicator={false}
       >
         <View className="px-5 pb-8">
-          <View className="gap-6 bg-bg-tertiary rounded-3xl p-6 border border-bg-elevated/50">
+          <View className="gap-6 bg-white rounded-3xl p-6 border border-bg-elevated/40 shadow-medium">
             <View className="mb-2">
               <Text className="h2-bold text-text-primary mb-2">
                 Welcome Back

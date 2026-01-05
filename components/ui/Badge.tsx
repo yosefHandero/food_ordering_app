@@ -1,15 +1,8 @@
+import { BadgeProps } from '@/type';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import cn from 'clsx';
-
-interface BadgeProps {
-  label: string | number;
-  variant?: 'primary' | 'success' | 'warning' | 'error' | 'neutral';
-  size?: 'sm' | 'md';
-  icon?: keyof typeof Ionicons.glyphMap;
-  className?: string;
-}
 
 export const Badge: React.FC<BadgeProps> = ({
   label,
@@ -21,11 +14,11 @@ export const Badge: React.FC<BadgeProps> = ({
   const baseClasses = cn(
     'flex-row items-center justify-center rounded-full px-3 py-1.5',
     {
-      'bg-accent-primary/10 border border-accent-primary/30': variant === 'primary',
-      'bg-accent-success/10 border border-accent-success/30': variant === 'success',
-      'bg-accent-secondary/10 border border-accent-secondary/30': variant === 'warning',
-      'bg-accent-error/10 border border-accent-error/30': variant === 'error',
-      'bg-bg-elevated border border-bg-elevated/50': variant === 'neutral',
+      'bg-accent-primary/12 border border-accent-primary/25': variant === 'primary',
+      'bg-accent-success/12 border border-accent-success/25': variant === 'success',
+      'bg-accent-secondary/12 border border-accent-secondary/25': variant === 'warning',
+      'bg-accent-error/12 border border-accent-error/25': variant === 'error',
+      'bg-bg-elevated border border-bg-elevated/40': variant === 'neutral',
       'px-2 py-1': size === 'sm',
       'px-3 py-1.5': size === 'md',
     },

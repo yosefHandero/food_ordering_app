@@ -9,8 +9,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "build": "npx expo export --platform web",
-    "seed:db": "ts-node scripts/seed.ts"
+    "build": "npx expo export --platform web"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -62,6 +61,7 @@
     "prettier-plugin-tailwindcss": "^0.5.14",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "~5.8.3"
   },
   "private": true

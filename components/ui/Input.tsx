@@ -1,17 +1,9 @@
+import { InputProps } from '@/type';
 import React, { useState } from 'react';
-import { TextInput, View, Text, TextInputProps, Platform } from 'react-native';
+import { TextInput, View, Text, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import cn from 'clsx';
-
-interface InputProps extends TextInputProps {
-  label?: string;
-  error?: string;
-  leftIcon?: keyof typeof Ionicons.glyphMap;
-  rightIcon?: keyof typeof Ionicons.glyphMap;
-  onRightIconPress?: () => void;
-  containerClassName?: string;
-}
 
 export const Input: React.FC<InputProps> = ({
   label,
@@ -31,18 +23,19 @@ export const Input: React.FC<InputProps> = ({
   const animatedBorderStyle = useAnimatedStyle(() => {
     return {
       borderColor: borderColor.value === 1 ? '#E63946' : error ? '#E63946' : '#F0EFEB',
+      borderWidth: borderColor.value === 1 ? 2 : 1,
     };
   });
 
   const handleFocus = (e: any) => {
     setIsFocused(true);
-    borderColor.value = withTiming(1, { duration: 200 });
+    borderColor.value = withTiming(1, { duration: 250 });
     onFocus?.(e);
   };
 
   const handleBlur = (e: any) => {
     setIsFocused(false);
-    borderColor.value = withTiming(0, { duration: 200 });
+    borderColor.value = withTiming(0, { duration: 250 });
     onBlur?.(e);
   };
 
@@ -57,7 +50,6 @@ export const Input: React.FC<InputProps> = ({
         style={[
           animatedBorderStyle,
           {
-            borderWidth: 1,
             borderRadius: 16,
             backgroundColor: '#FFFFFF',
             flexDirection: 'row',
@@ -67,9 +59,9 @@ export const Input: React.FC<InputProps> = ({
           },
           isFocused && {
             shadowColor: '#E63946',
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.2,
+            shadowRadius: 12,
             ...(Platform.OS === 'android' && { elevation: 4 }),
           },
         ]}

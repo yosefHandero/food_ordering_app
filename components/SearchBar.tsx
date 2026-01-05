@@ -1,7 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Platform, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Dimensions,
+  Platform,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -20,6 +26,21 @@ const Searchbar = () => {
   const borderGlow = useSharedValue(0);
   const isInternalUpdate = useRef(false);
   const lastParamsQuery = useRef(initialQuery);
+
+  // Check if device is small (width < 375px, typical iPhone SE size)
+  const [screenWidth, setScreenWidth] = useState(
+    Dimensions.get("window").width
+  );
+  const isSmallDevice = screenWidth < 375;
+
+  // Listen for dimension changes (e.g., device rotation)
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener("change", ({ window }) => {
+      setScreenWidth(window.width);
+    });
+
+    return () => subscription?.remove();
+  }, []);
 
   // Sync local state with URL params when they change externally (e.g., from Filter)
   useEffect(() => {
@@ -81,17 +102,17 @@ const Searchbar = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            borderRadius: 16,
+            borderRadius: 9999,
             backgroundColor: "#E63946",
             ...Platform.select({
               ios: {
                 shadowColor: "#E63946",
-                shadowOffset: { width: 0, height: 0 },
-                shadowOpacity: 0.4,
-                shadowRadius: 12,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 16,
               },
               android: {
-                elevation: 8,
+                elevation: 6,
               },
             }),
           },
@@ -108,7 +129,11 @@ const Searchbar = () => {
         />
         <TextInput
           className="flex-1 text-base font-quicksand-medium text-text-primary"
-          placeholder="Search for pizzas, burgers, sushi..."
+          placeholder={
+            isSmallDevice
+              ? ""
+              : "Search foods, restaurants, or goals (high protein, low cal…)"
+          }
           placeholderTextColor="#878787"
           value={query}
           onChangeText={setQuery}

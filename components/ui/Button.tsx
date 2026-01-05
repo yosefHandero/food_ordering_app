@@ -1,3 +1,4 @@
+import { ButtonProps } from "@/type";
 import { Ionicons } from "@expo/vector-icons";
 import cn from "clsx";
 import React from "react";
@@ -6,6 +7,7 @@ import {
   Platform,
   Text,
   TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -13,20 +15,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-
-interface ButtonProps {
-  title: string;
-  onPress?: () => void;
-  variant?: "primary" | "secondary" | "ghost";
-  size?: "sm" | "md" | "lg";
-  isLoading?: boolean;
-  disabled?: boolean;
-  leftIcon?: keyof typeof Ionicons.glyphMap;
-  rightIcon?: keyof typeof Ionicons.glyphMap;
-  className?: string;
-  textClassName?: string;
-  fullWidth?: boolean;
-}
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -45,20 +33,102 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
+  const shadowOffsetY = useSharedValue(0);
+  const shadowOpacity = useSharedValue(0);
+  const shadowRadius = useSharedValue(0);
+  const androidElevation = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const isAnimatingRef = React.useRef(false);
+
+  // Initialize base shadow values based on variant (enhanced for depth)
+  // Use withTiming to avoid interrupting ongoing animations
+  React.useEffect(() => {
+    // Only update if not currently animating (no press in progress)
+    if (!isAnimatingRef.current) {
+      if (variant === "primary" && !disabled) {
+        shadowOffsetY.value = withTiming(6, { duration: 0 });
+        shadowOpacity.value = withTiming(0.3, { duration: 0 });
+        shadowRadius.value = withTiming(16, { duration: 0 });
+        androidElevation.value = withTiming(8, { duration: 0 });
+      } else if (variant === "secondary") {
+        shadowOffsetY.value = withTiming(3, { duration: 0 });
+        shadowOpacity.value = withTiming(0.12, { duration: 0 });
+        shadowRadius.value = withTiming(10, { duration: 0 });
+        androidElevation.value = withTiming(4, { duration: 0 });
+      } else {
+        // Reset for ghost variant or disabled state
+        shadowOffsetY.value = withTiming(0, { duration: 0 });
+        shadowOpacity.value = withTiming(0, { duration: 0 });
+        shadowRadius.value = withTiming(0, { duration: 0 });
+        androidElevation.value = withTiming(0, { duration: 0 });
+      }
+    }
+  }, [variant, disabled]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [
+      { scale: scale.value },
+      { translateY: translateY.value },
+    ],
     opacity: opacity.value,
   }));
 
+  const animatedShadowStyle = useAnimatedStyle(() => {
+    const shadowColor = variant === "primary" && !disabled ? "#E63946" : "#000";
+    
+    return {
+      shadowColor,
+      shadowOffset: { width: 0, height: shadowOffsetY.value },
+      shadowOpacity: shadowOpacity.value,
+      shadowRadius: shadowRadius.value,
+      ...(Platform.OS === "android" && {
+        elevation: androidElevation.value,
+      }),
+    };
+  });
+
   const handlePressIn = () => {
-    scale.value = withSpring(0.95, { damping: 15 });
-    opacity.value = withTiming(0.8, { duration: 100 });
+    isAnimatingRef.current = true;
+    scale.value = withSpring(0.97, { damping: 18, stiffness: 300 });
+    opacity.value = withTiming(0.85, { duration: 150 });
+    translateY.value = withSpring(1, { damping: 18, stiffness: 300 });
+    
+    // Reduce shadows on press (button pressed down effect)
+    if (variant === "primary" && !disabled) {
+      shadowOffsetY.value = withTiming(3, { duration: 150 });
+      shadowOpacity.value = withTiming(0.2, { duration: 150 });
+      shadowRadius.value = withTiming(12, { duration: 150 });
+      androidElevation.value = withTiming(5, { duration: 150 });
+    } else if (variant === "secondary") {
+      shadowOffsetY.value = withTiming(2, { duration: 150 });
+      shadowOpacity.value = withTiming(0.08, { duration: 150 });
+      shadowRadius.value = withTiming(8, { duration: 150 });
+      androidElevation.value = withTiming(3, { duration: 150 });
+    }
   };
 
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15 });
-    opacity.value = withTiming(1, { duration: 100 });
+    scale.value = withSpring(1, { damping: 18, stiffness: 300 });
+    opacity.value = withTiming(1, { duration: 150 });
+    translateY.value = withSpring(0, { damping: 18, stiffness: 300 });
+    
+    // Reset shadows to enhanced base values
+    if (variant === "primary" && !disabled) {
+      shadowOffsetY.value = withTiming(6, { duration: 150 });
+      shadowOpacity.value = withTiming(0.3, { duration: 150 });
+      shadowRadius.value = withTiming(16, { duration: 150 });
+      androidElevation.value = withTiming(8, { duration: 150 });
+    } else if (variant === "secondary") {
+      shadowOffsetY.value = withTiming(3, { duration: 150 });
+      shadowOpacity.value = withTiming(0.12, { duration: 150 });
+      shadowRadius.value = withTiming(10, { duration: 150 });
+      androidElevation.value = withTiming(4, { duration: 150 });
+    }
+    
+    // Reset animation flag after animation completes (150ms + small buffer)
+    setTimeout(() => {
+      isAnimatingRef.current = false;
+    }, 200);
   };
 
   const baseClasses = cn(
@@ -67,8 +137,8 @@ export const Button: React.FC<ButtonProps> = ({
       "bg-accent-primary": variant === "primary" && !disabled,
       "bg-text-disabled": variant === "primary" && disabled,
       "bg-white border-2 border-accent-primary": variant === "secondary",
-      "bg-transparent border border-text-tertiary/30": variant === "ghost",
-      "opacity-50": isLoading,
+      "bg-transparent border border-text-tertiary/20": variant === "ghost",
+      "opacity-50": isLoading || disabled,
       "w-full": fullWidth,
       "px-4 py-2.5": size === "sm",
       "px-6 py-4": size === "md",
@@ -98,23 +168,23 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled || isLoading}
       style={[
         animatedStyle,
-        Platform.OS === "android" &&
-          variant === "primary" && {
-            elevation: 4,
-            shadowColor: "#E63946",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-          },
+        animatedShadowStyle,
       ]}
       className={baseClasses}
-      activeOpacity={0.8}
+      activeOpacity={1}
     >
       {isLoading ? (
-        <ActivityIndicator
-          size="small"
-          color={variant === "primary" ? "#FFFFFF" : "#E63946"}
-        />
+        <View className="flex-row items-center gap-2">
+          <ActivityIndicator
+            size="small"
+            color={variant === "primary" ? "#FFFFFF" : "#E63946"}
+          />
+          {title && (
+            <Text className={textClasses} style={{ opacity: 0.8 }}>
+              {title}
+            </Text>
+          )}
+        </View>
       ) : (
         <>
           {leftIcon && (

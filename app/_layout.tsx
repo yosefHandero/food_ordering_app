@@ -32,13 +32,10 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, error]);
 
-  // Fetch user in background - don't block app access
   useEffect(() => {
     fetchAuthenticatedUser().catch((err) => {
-      // Silently fail - user can browse without auth
       console.error("Error fetching authenticated user:", err);
     });
-    // fetchAuthenticatedUser is a stable function reference from Zustand, safe to omit from deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -119,18 +119,18 @@ function Cart() {
       {totalItems > 0 && (
         <AnimatedView
           entering={FadeIn.duration(300)}
-          className="absolute bottom-0 left-0 right-0 bg-bg-elevated border-t border-bg-tertiary px-5 py-4"
+          className="absolute bottom-0 left-0 right-0 bg-white border-t border-bg-elevated/50 px-5 py-4"
           style={{
             paddingBottom: Platform.OS === "ios" ? 40 : 24,
             ...Platform.select({
               ios: {
                 shadowColor: "#000",
-                shadowOffset: { width: 0, height: -4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 12,
+                shadowOffset: { width: 0, height: -2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 16,
               },
               android: {
-                elevation: 12,
+                elevation: 8,
               },
             }),
           }}

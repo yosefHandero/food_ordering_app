@@ -15,7 +15,6 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 
 export default function Checkout() {
   const { items, getTotalItems, getTotalPrice, clearCart } = useCartStore();
-  // Use selectors to only subscribe to needed state, preventing unnecessary re-renders
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [promoCode, setPromoCode] = useState("");
@@ -27,7 +26,6 @@ export default function Checkout() {
   const discount = promoCode === "SAVE10" ? totalPrice * 0.1 : 0;
   const finalTotal = totalPrice + deliveryFee - discount;
 
-  // Redirect to cart if cart is empty
   React.useEffect(() => {
     if (items.length === 0) {
       Alert.alert(
@@ -44,7 +42,6 @@ export default function Checkout() {
       return;
     }
 
-    // Require authentication to place order
     if (!user || !isAuthenticated) {
       Alert.alert("Login Required", "Please sign in to place an order.", [
         { text: "Cancel", style: "cancel" },
@@ -54,15 +51,10 @@ export default function Checkout() {
     }
 
     try {
-      // Get restaurant ID from first menu item
       if (items.length === 0) {
         Alert.alert("Error", "Your cart is empty");
         return;
       }
-
-      // Order creation functionality has been removed (Supabase dependency removed)
-      // For now, just show a success message
-      // TODO: Implement order creation with your new backend
 
       Alert.alert(
         "Order Placed!",
@@ -82,7 +74,6 @@ export default function Checkout() {
     }
   };
 
-  // Don't render checkout UI if cart is empty
   if (items.length === 0) {
     return (
       <SafeAreaView className="flex-1 bg-bg-primary" edges={["top"]}>
@@ -212,18 +203,18 @@ export default function Checkout() {
 
       {/* Bottom Action Bar */}
       <View
-        className="absolute bottom-0 left-0 right-0 bg-bg-elevated border-t border-bg-tertiary px-5 py-4"
+        className="absolute bottom-0 left-0 right-0 bg-white border-t border-bg-elevated/50 px-5 py-4"
         style={{
           paddingBottom: Platform.OS === "ios" ? 40 : 24,
           ...Platform.select({
             ios: {
               shadowColor: "#000",
-              shadowOffset: { width: 0, height: -4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 12,
+              shadowOffset: { width: 0, height: -2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 16,
             },
             android: {
-              elevation: 12,
+              elevation: 8,
             },
           }),
         }}

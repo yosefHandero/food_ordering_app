@@ -32,11 +32,11 @@ const FilterItem = memo(
     }));
 
     const handlePressIn = () => {
-      scale.value = withSpring(0.95, { damping: 15 });
+      scale.value = withSpring(0.96, { damping: 18, stiffness: 300 });
     };
 
     const handlePressOut = () => {
-      scale.value = withSpring(1, { damping: 15 });
+      scale.value = withSpring(1, { damping: 18, stiffness: 300 });
     };
 
     return (

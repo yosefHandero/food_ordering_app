@@ -27,7 +27,7 @@ const HEADER_HEIGHT = 300;
 const mockRestaurant = {
   id: "1",
   name: "Burger Paradise",
-  imageUrl: "https://images.unsplash.com/photo-1571091718767-18b5b1457add",
+  imageUrl: undefined,
   rating: 4.8,
   deliveryTime: "25-35 min",
   distance: "2.5 km",
@@ -95,6 +95,17 @@ export default function RestaurantDetail() {
             backgroundColor: "#FAF9F6",
             borderBottomWidth: 1,
             borderBottomColor: "#F0EFEB",
+            ...Platform.select({
+              ios: {
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.05,
+                shadowRadius: 4,
+              },
+              android: {
+                elevation: 2,
+              },
+            }),
           },
         ]}
       >
@@ -235,7 +246,16 @@ export default function RestaurantDetail() {
                 }
               >
                 <View className="flex-row items-center gap-4">
-                  <View className="w-20 h-20 bg-bg-elevated rounded-xl" />
+                  <View
+                    className="w-16 h-16 bg-bg-elevated rounded-xl"
+                    style={{
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 1 },
+                      shadowOpacity: 0.05,
+                      shadowRadius: 4,
+                      ...(Platform.OS === "android" && { elevation: 2 }),
+                    }}
+                  />
                   <View className="flex-1">
                     <Text className="base-bold text-text-primary mb-1">
                       {item.name}

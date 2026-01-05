@@ -1,170 +1,222 @@
-import { getFoodImageUrlSync } from "@/lib/food-images";
-import { MenuItem } from "@/type";
-import { Ionicons } from "@expo/vector-icons";
-import cn from "clsx";
-import React, { useState } from "react";
-import { Image, Platform, Text, View } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
-import { Badge } from "./ui/Badge";
-import { Card } from "./ui/Card";
+/**
+ * Food images (local-first + optional remote upgrade)
+ *
+ * Fixes:
+ * - Remove "any protein => burger image" (was causing salmon => burger)
+ * - Provide getFoodImageLocal (sync) and getFoodImageRemote (async)
+ * - Remote only attempts for salad/pizza/burger/wrap/bowl (you can tune)
+ * - Remote requires foodType keyword + at least 1 canonical keyword hit
+ *
+ * Types live in @/type.d.ts (keep them there).
+ */
 
-interface FoodCardProps {
-  item: MenuItem;
-  onPress?: () => void;
-  variant?: "default" | "large";
-  showRating?: boolean;
-}
+import type {
+  ClassifiedItem,
+  FoodImage,
+  FoodType,
+  MenuItem,
+  PrimaryProtein,
+} from "@/type";
+import type { ImageSourcePropType } from "react-native";
 
-const AnimatedCard = Animated.createAnimatedComponent(Card);
+// ----------------------------------------------------------------------------
+// Remote config (removed - no external image services)
+// ----------------------------------------------------------------------------
 
-const FoodCard: React.FC<FoodCardProps> = ({
-  item,
-  onPress,
-  variant = "default",
-  showRating = true,
-}) => {
-  const isLarge = variant === "large";
-  const imageSize = isLarge ? 140 : 120;
+// ----------------------------------------------------------------------------
+// Local assets (add more if you want better matches)
+// ----------------------------------------------------------------------------
+const IMG = {
+  burger: require("@/assets/images/burger-one.png"),
+  pizza: require("@/assets/images/pizza-one.png"),
+  salad: require("@/assets/images/salad.png"),
+  burrito: require("@/assets/images/buritto.png"),
+  fries: require("@/assets/images/fries.png"),
+  onion: require("@/assets/images/onion-rings.png"),
+  mozzarella: require("@/assets/images/mozarella-sticks.png"),
+  food: require("@/assets/images/food-spread-background.png"),
+} as const;
 
-  // Generate unique image URL based on food name (prioritize this)
-  const generatedImageUrl = getFoodImageUrlSync(
-    item.name,
-    imageSize,
-    imageSize
-  );
+const SPECIFIC: Record<string, ImageSourcePropType> = {
+  // salads
+  "grilled chicken salad": IMG.salad,
+  "caesar salad": IMG.salad,
+  "cobb salad": IMG.salad,
+  "greek salad": IMG.salad,
 
-  // Use generated image URL first, fallback to stored image_url if generation fails
-  const [imageUrl, setImageUrl] = useState<string>(generatedImageUrl);
-  const [imageError, setImageError] = useState(false);
+  // pizza
+  pepperoni: IMG.pizza,
+  margherita: IMG.pizza,
 
-  const scale = useSharedValue(1);
-  const imageOpacity = useSharedValue(0);
+  // wraps/burritos
+  "turkey wrap": IMG.burrito,
+  burrito: IMG.burrito,
+  taco: IMG.burrito,
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  // sides
+  fries: IMG.fries,
+  "french fries": IMG.fries,
+  "onion rings": IMG.onion,
+  "mozzarella sticks": IMG.mozzarella,
 
-  const imageAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: imageOpacity.value,
-  }));
-
-  React.useEffect(() => {
-    imageOpacity.value = withTiming(1, { duration: 300 });
-  }, []);
-
-  const handlePressIn = () => {
-    if (onPress) {
-      scale.value = withSpring(0.95, { damping: 15 });
-    }
-  };
-
-  const handlePressOut = () => {
-    if (onPress) {
-      scale.value = withSpring(1, { damping: 15 });
-    }
-  };
-
-  const handleImageError = () => {
-    // If generated image fails, try the stored image_url as fallback
-    if (!imageError && imageUrl === generatedImageUrl && item?.image_url) {
-      setImageUrl(item.image_url);
-      setImageError(false); // Reset error to try fallback
-    } else {
-      // Both images failed, show placeholder
-      setImageError(true);
-    }
-  };
-
-  return (
-    <AnimatedCard
-      onPress={onPress}
-      variant="elevated"
-      className={cn("relative", isLarge ? "pt-32 pb-6" : "pt-24 pb-5")}
-      style={[
-        animatedStyle,
-        Platform.OS === "android" && {
-          elevation: 6,
-        },
-      ]}
-    >
-      {/* Food Image */}
-      <Animated.View
-        style={[
-          {
-            position: "absolute",
-            top: isLarge ? -40 : -30,
-            alignSelf: "center",
-            width: isLarge ? 140 : 120,
-            height: isLarge ? 140 : 120,
-            zIndex: 10,
-          },
-          imageAnimatedStyle,
-        ]}
-      >
-        {imageUrl && !imageError ? (
-          <Image
-            source={{ uri: imageUrl }}
-            className="w-full h-full"
-            resizeMode="contain"
-            style={{ borderRadius: 100 }}
-            onError={handleImageError}
-          />
-        ) : (
-          <View className="w-full h-full bg-bg-elevated items-center justify-center rounded-full">
-            <Ionicons name="image-outline" size={40} color="#878787" />
-          </View>
-        )}
-      </Animated.View>
-
-      {/* Content */}
-      <View className="items-center mt-auto">
-        <Text
-          className={cn(
-            "font-quicksand-bold text-text-primary text-center mb-1.5",
-            isLarge ? "text-lg" : "text-base"
-          )}
-          numberOfLines={2}
-        >
-          {item.name}
-        </Text>
-
-        {item.description && (
-          <Text
-            className="text-xs font-quicksand text-text-tertiary text-center mb-2 px-2"
-            numberOfLines={2}
-          >
-            {item.description}
-          </Text>
-        )}
-
-        <View className="flex-row items-center gap-2 mb-3">
-          {showRating && item.rating && (
-            <Badge
-              label={`${item.rating.toFixed(1)} ⭐`}
-              variant="warning"
-              size="sm"
-            />
-          )}
-          {item.calories && (
-            <Badge label={`${item.calories} cal`} variant="neutral" size="sm" />
-          )}
-        </View>
-
-        <View className="flex-row items-center gap-2">
-          <Text className="text-lg font-quicksand-bold text-accent-primary">
-            ${item.price.toFixed(2)}
-          </Text>
-        </View>
-      </View>
-    </AnimatedCard>
-  );
+  // NOTE: if you don’t have a fish/bowl asset, don’t pretend it’s a burger.
+  // Better to use IMG.food than a wrong burger photo.
 };
 
-FoodCard.displayName = "FoodCard";
+const CATEGORY: Record<string, ImageSourcePropType> = {
+  salad: IMG.salad,
+  pizza: IMG.pizza,
+  burger: IMG.burger,
+  wrap: IMG.burrito,
+  burrito: IMG.burrito,
+  taco: IMG.burrito,
+  fries: IMG.fries,
+  default: IMG.food,
+};
 
-export { FoodCard };
+function norm(s: string) {
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+const SPECIFIC_SORTED = Object.entries(SPECIFIC).sort(
+  (a, b) => b[0].length - a[0].length
+);
+
+// ----------------------------------------------------------------------------
+// Classifier (small + predictable)
+// ----------------------------------------------------------------------------
+const FOOD: Record<FoodType, string[]> = {
+  salad: ["salad", "greens", "lettuce", "caesar", "cobb", "greek"],
+  pizza: ["pizza", "slice", "pepperoni", "margherita"],
+  burger: ["burger", "cheeseburger", "hamburger"],
+  wrap: ["wrap", "tortilla"],
+  bowl: ["bowl", "grain bowl", "rice bowl", "quinoa bowl", "protein bowl"],
+  sandwich: ["sandwich", "club", "deli"],
+  sub: ["sub", "footlong"],
+  other: [],
+};
+
+const PROTEIN: [PrimaryProtein, string[]][] = [
+  ["chicken", ["chicken", "poultry"]],
+  ["salmon", ["salmon"]],
+  ["fish", ["fish", "seafood", "shrimp"]],
+  ["turkey", ["turkey"]],
+  ["beef", ["beef"]],
+  ["steak", ["steak"]],
+  ["pork", ["pork", "bacon"]],
+  ["tuna", ["tuna"]],
+  ["veggie", ["veggie", "vegan", "tofu", "bean", "falafel"]],
+];
+
+export function classifyMenuItem(
+  item: MenuItem | { name: string; description?: string }
+): ClassifiedItem {
+  const text = norm(`${item.name} ${item.description || ""}`);
+
+  let foodType: FoodType = "other";
+  for (const [type, words] of Object.entries(FOOD) as [FoodType, string[]][]) {
+    if (type === "other") continue;
+    if (words.some((w) => new RegExp(`\\b${w}\\b`, "i").test(text))) {
+      foodType = type;
+      break;
+    }
+  }
+
+  let primaryProtein: PrimaryProtein = "unknown";
+  for (const [p, words] of PROTEIN) {
+    if (words.some((w) => new RegExp(`\\b${w}\\b`, "i").test(text))) {
+      primaryProtein = p;
+      break;
+    }
+  }
+
+  const canonicalName = norm(item.name)
+    .replace(/\b(menu|item|dish|food|meal|restaurant)\b/g, "")
+    .trim();
+
+  return { foodType, primaryProtein, canonicalName, modifiers: [] };
+}
+
+export function getSimilarityKey(
+  item: MenuItem | { name: string; description?: string }
+): string {
+  const c = classifyMenuItem(item);
+  const core = c.canonicalName.split(" ").filter(Boolean).slice(0, 6).join(" ");
+  return `${c.foodType}:${c.primaryProtein}:${core}`.toLowerCase();
+}
+
+// ----------------------------------------------------------------------------
+// Local (sync) — stop pretending fish/bowls are burgers
+// ----------------------------------------------------------------------------
+function pickLocalByText(name: string): ImageSourcePropType {
+  const t = norm(name);
+
+  for (const [k, img] of SPECIFIC_SORTED) {
+    if (t.includes(k)) return img;
+  }
+
+  for (const [k, img] of Object.entries(CATEGORY)) {
+    if (k !== "default" && t.includes(k)) return img;
+  }
+
+  return CATEGORY.default;
+}
+
+export function getFoodImageLocal(
+  item: MenuItem | { name: string; description?: string }
+): FoodImage {
+  const cls = classifyMenuItem(item);
+
+  // Strong type-based picks
+  if (cls.foodType === "salad") return { kind: "local", source: IMG.salad };
+  if (cls.foodType === "pizza") return { kind: "local", source: IMG.pizza };
+  if (cls.foodType === "burger") return { kind: "local", source: IMG.burger };
+  if (
+    cls.foodType === "wrap" ||
+    cls.foodType === "sub" ||
+    cls.foodType === "sandwich"
+  )
+    return { kind: "local", source: IMG.burrito };
+
+  // Bowls: if you don’t have a bowl asset, prefer generic food (NOT burrito)
+  if (cls.foodType === "bowl") return { kind: "local", source: IMG.food };
+
+  // Everything else: keyword fallback -> default
+  return { kind: "local", source: pickLocalByText(item.name) };
+}
+
+// ----------------------------------------------------------------------------
+// Remote (async) — disabled - no external image services
+// ----------------------------------------------------------------------------
+export async function getFoodImageRemote(
+  _item: MenuItem | { name: string; description?: string }
+): Promise<FoodImage | null> {
+  // Remote image fetching disabled - no external image services
+  return null;
+}
+
+// ----------------------------------------------------------------------------
+// Single convenience API (kept for compatibility)
+// ----------------------------------------------------------------------------
+export async function getFoodImage(
+  item: MenuItem | { name: string; description?: string }
+): Promise<FoodImage> {
+  const local = getFoodImageLocal(item);
+  const remote = await getFoodImageRemote(item);
+  return remote ?? local;
+}
+
+// Backward compatibility: some files still import resolveFoodImage
+export async function resolveFoodImage(
+  item: MenuItem | { name: string; description?: string }
+): Promise<FoodImage> {
+  return getFoodImage(item);
+}
+
+// Cache helpers (disabled - no remote images)
+export const clearImageCache = () => {};
+export const getCacheStats = () => ({ imageCount: 0 });

@@ -1,12 +1,7 @@
+import { PaymentInfoRowProps } from "@/type";
 import cn from "clsx";
 import React from "react";
 import { Text, View } from "react-native";
-
-interface PaymentInfoRowProps {
-  label: string;
-  value: string;
-  isTotal?: boolean;
-}
 
 export const PaymentInfoRow: React.FC<PaymentInfoRowProps> = ({
   label,

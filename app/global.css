@@ -34,9 +34,10 @@
     
     /* Glass morphism - premium cream background */
     .glass {
-        background: rgba(250, 249, 246, 0.9);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        background: rgba(250, 249, 246, 0.95);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
     }
     
     /* Text gradients */
@@ -53,35 +54,70 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
+
+    /* Premium shadow utilities - Refined for premium feel */
+    .shadow-soft {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+
+    .shadow-medium {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .shadow-strong {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    .shadow-colored {
+        box-shadow: 0 3px 12px rgba(230, 57, 70, 0.2), 0 1px 4px rgba(230, 57, 70, 0.15);
+    }
+    
+    /* Subtle divider utility */
+    .divider {
+        border-bottom-width: 1px;
+        border-bottom-color: rgba(240, 239, 235, 0.8);
+    }
 }
 
 @layer components {
-    /* Premium button styles */
+    /* Premium button styles with depth and hover effects */
     .btn-primary {
         @apply bg-accent-primary rounded-full px-6 py-4 flex-row items-center justify-center;
-        @apply active:scale-95 transition-transform duration-150;
-        @apply shadow-lg shadow-accent-primary/30;
+        @apply active:scale-[0.97] transition-all duration-200 ease-out;
+        @apply shadow-colored;
+        @apply hover:shadow-[0_6px_24px_rgba(230,57,70,0.35),0_3px_12px_rgba(230,57,70,0.2)];
+        @apply hover:translate-y-[-1px];
+        @apply hover:scale-[1.02];
     }
     
     .btn-secondary {
         @apply bg-white border-2 border-accent-primary rounded-full px-6 py-4 flex-row items-center justify-center;
-        @apply active:scale-95 transition-transform duration-150;
+        @apply active:scale-[0.97] transition-all duration-200 ease-out;
+        @apply shadow-soft;
+        @apply hover:shadow-[0_4px_16px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.1)];
+        @apply hover:translate-y-[-1px];
+        @apply hover:scale-[1.01];
     }
     
     .btn-ghost {
-        @apply bg-transparent border border-text-tertiary/30 rounded-full px-6 py-4 flex-row items-center justify-center;
-        @apply active:scale-95 transition-transform duration-150;
+        @apply bg-transparent border border-text-tertiary/20 rounded-full px-6 py-4 flex-row items-center justify-center;
+        @apply active:scale-[0.97] transition-all duration-200 ease-out;
+        @apply hover:bg-bg-elevated/50;
+        @apply hover:shadow-soft;
+        @apply hover:translate-y-[-1px];
     }
     
     /* Premium card styles */
     .card {
-        @apply bg-white rounded-3xl p-5 shadow-md;
-        @apply border border-bg-elevated/30;
+        @apply bg-white rounded-3xl p-5;
+        @apply border border-bg-elevated/40 shadow-soft;
+        @apply transition-all duration-200;
     }
     
     .card-elevated {
-        @apply bg-white rounded-3xl p-5 shadow-xl;
-        @apply border border-accent-primary/10;
+        @apply bg-white rounded-3xl p-5;
+        @apply border border-accent-primary/10 shadow-medium;
+        @apply transition-all duration-200;
     }
     
     /* Premium cart button */
@@ -97,58 +133,64 @@
 
     .cart-item {
         @apply flex flex-row items-center justify-between mb-4 bg-white rounded-2xl p-4;
-        @apply border border-bg-elevated/50 shadow-sm;
+        @apply border border-bg-elevated/40 shadow-soft;
+        @apply transition-all duration-200;
     }
 
     .cart-item__image {
-        @apply size-20 bg-bg-elevated rounded-xl flex items-center justify-center overflow-hidden;
+        @apply size-16 bg-bg-elevated rounded-xl flex items-center justify-center overflow-hidden;
+        @apply shadow-soft;
     }
 
     .cart-item__actions {
         @apply flex flex-row items-center justify-center size-8 bg-accent-primary/10 rounded-lg;
-        @apply active:scale-90 transition-transform border border-accent-primary/20;
+        @apply active:scale-[0.92] transition-all duration-200 border border-accent-primary/20;
+        @apply hover:bg-accent-primary/15;
     }
 
     /* Premium menu card */
     .menu-card {
         @apply relative py-6 px-4 pt-20 flex items-center justify-end;
-        @apply bg-white rounded-3xl border border-bg-elevated/50 shadow-md;
-        @apply active:scale-95 transition-transform duration-150;
+        @apply bg-white rounded-3xl border border-bg-elevated/40 shadow-medium;
+        @apply active:scale-[0.97] transition-all duration-200;
     }
     
     .menu-card-large {
         @apply relative py-8 px-6 pt-28 flex items-center justify-end;
-        @apply bg-white rounded-3xl border border-bg-elevated/50 shadow-lg;
+        @apply bg-white rounded-3xl border border-bg-elevated/40 shadow-strong;
+        @apply transition-all duration-200;
     }
 
     /* Premium search bar */
     .searchbar {
         @apply relative flex flex-row items-center w-full;
-        @apply bg-white border-2 border-bg-elevated/30 rounded-full;
+        @apply bg-white rounded-full;
         @apply px-5 py-4 font-quicksand-medium text-text-primary gap-4;
-        @apply shadow-sm;
+        @apply shadow-soft transition-all duration-300;
     }
     
     .searchbar:focus-within {
-        @apply border-accent-primary shadow-glow;
+        @apply shadow-colored;
+        transform: translateY(-1px);
     }
 
     /* Premium filter chips */
     .filter-chip {
         @apply px-5 py-3 rounded-full mr-3;
         @apply bg-white border-2 border-bg-elevated/30;
-        @apply active:scale-95 transition-all duration-150 shadow-sm;
+        @apply active:scale-[0.96] transition-all duration-200 shadow-soft;
     }
     
     .filter-chip-active {
-        @apply bg-accent-primary border-accent-primary shadow-glow text-white;
+        @apply bg-accent-primary border-accent-primary shadow-colored text-white;
+        transform: translateY(-1px);
     }
 
     /* Premium offer card */
     .offer-card {
         @apply w-full h-52 my-4 rounded-3xl overflow-hidden;
-        @apply shadow-xl border border-accent-primary/20;
-        @apply active:scale-98 transition-transform duration-200;
+        @apply shadow-strong border border-accent-primary/20;
+        @apply active:scale-[0.99] transition-all duration-200;
         @apply bg-gradient-warm;
     }
 

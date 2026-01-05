@@ -1,8 +1,8 @@
-import { getFoodImageUrlSync } from "@/lib/food-images";
+import { getFoodImage } from "@/lib/food-images";
 import { useCartStore } from "@/store/cart.store";
 import { CartItemType } from "@/type";
 import { Ionicons } from "@expo/vector-icons";
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -18,21 +18,26 @@ const CartItem = memo(
     const { increaseQty, decreaseQty, removeItem } = useCartStore();
     const scale = useSharedValue(1);
 
-    // Generate unique image URL based on food name
-    const generatedImageUrl = getFoodImageUrlSync(item.name, 80, 80);
-    const [imageUrl, setImageUrl] = useState<string>(
-      item.image_url || generatedImageUrl
-    );
+    // State for food image
+    const [foodImage, setFoodImage] = useState<{ kind: 'local' | 'remote'; source?: any; url?: string } | null>(null);
     const [imageError, setImageError] = useState(false);
 
+    // Resolve image
+    useEffect(() => {
+      getFoodImage(item)
+        .then((result) => {
+          setFoodImage(result);
+        })
+        .catch((error) => {
+          console.warn("[CartItem] Failed to get image:", error);
+          // Fallback to local
+          setFoodImage({ kind: 'local', source: require('@/assets/images/food-spread-background.png') });
+        });
+    }, [item.name]);
+
+    // Handle image load error
     const handleImageError = () => {
-      // If stored image fails, try the generated one
-      if (!imageError && imageUrl === item.image_url && item.image_url) {
-        setImageUrl(generatedImageUrl);
-        setImageError(false);
-      } else {
-        setImageError(true);
-      }
+      setImageError(true);
     };
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -40,11 +45,11 @@ const CartItem = memo(
     }));
 
     const handlePressIn = () => {
-      scale.value = withSpring(0.98, { damping: 15 });
+      scale.value = withSpring(0.98, { damping: 18, stiffness: 300 });
     };
 
     const handlePressOut = () => {
-      scale.value = withSpring(1, { damping: 15 });
+      scale.value = withSpring(1, { damping: 18, stiffness: 300 });
     };
 
     const itemTotal = item.price * item.quantity;
@@ -54,12 +59,18 @@ const CartItem = memo(
         <Card variant="elevated" className="mb-4">
           <View className="flex-row items-center gap-4">
             <View className="cart-item__image">
-              {imageUrl && !imageError ? (
+              {foodImage?.kind === 'remote' && foodImage.url && !imageError ? (
                 <Image
-                  source={{ uri: imageUrl }}
+                  source={{ uri: foodImage.url }}
                   className="w-full h-full rounded-xl"
                   resizeMode="cover"
                   onError={handleImageError}
+                />
+              ) : foodImage?.kind === 'local' && foodImage.source ? (
+                <Image
+                  source={foodImage.source}
+                  className="w-full h-full rounded-xl"
+                  resizeMode="cover"
                 />
               ) : (
                 <View className="w-full h-full bg-bg-elevated items-center justify-center rounded-xl">
@@ -121,9 +132,14 @@ const CartItem = memo(
     );
   },
   (prevProps, nextProps) => {
+    // Compare all properties that affect rendering, including name and description
+    // (which affect image resolution via similarityKey)
     return (
       prevProps.item.id === nextProps.item.id &&
-      prevProps.item.quantity === nextProps.item.quantity
+      prevProps.item.quantity === nextProps.item.quantity &&
+      prevProps.item.name === nextProps.item.name &&
+      prevProps.item.description === nextProps.item.description &&
+      prevProps.item.price === nextProps.item.price
     );
   }
 );

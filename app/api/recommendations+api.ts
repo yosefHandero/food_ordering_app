@@ -1,4 +1,4 @@
-import { getNearbyRestaurantsAndMenuItems } from '@/lib/external-apis';
+import { getNearbyRestaurantsAndMenuItems } from '@/lib/api';
 import { rankWithOpenAI } from '@/lib/openai'; // Note: function name kept for compatibility, but uses Hugging Face
 import {
   generateContextGuidance,
@@ -18,7 +18,7 @@ function normalizeItemName(name: string): string {
  * Priority: 1) Less calories (or nearest location), 2) More protein, 3) Better rating, 4) Better price, 5) Random
  */
 function selectBestRestaurantForItem(
-  candidates: Array<{ restaurant: any; item: any }>,
+  candidates: { restaurant: any; item: any }[],
   userLat?: number,
   userLng?: number
 ): { restaurant: any; item: any } {
@@ -130,12 +130,12 @@ function selectBestRestaurantForItem(
  * select the best one based on calories, distance, protein, rating, and price.
  */
 function deduplicateMenuItems(
-  candidates: Array<{ restaurant: any; item: any }>,
+  candidates: { restaurant: any; item: any }[],
   userLat?: number,
   userLng?: number
-): Array<{ restaurant: any; item: any }> {
+): { restaurant: any; item: any }[] {
   // Group candidates by normalized item name
-  const itemsByName = new Map<string, Array<{ restaurant: any; item: any }>>();
+  const itemsByName = new Map<string, { restaurant: any; item: any }[]>();
 
   candidates.forEach(candidate => {
     const normalizedName = normalizeItemName(candidate.item.name);
@@ -146,17 +146,11 @@ function deduplicateMenuItems(
   });
 
   // For each item name, select the best restaurant
-  const deduplicated: Array<{ restaurant: any; item: any }> = [];
+  const deduplicated: { restaurant: any; item: any }[] = [];
   
   itemsByName.forEach((candidatesForItem, normalizedName) => {
     const best = selectBestRestaurantForItem(candidatesForItem, userLat, userLng);
     deduplicated.push(best);
-  });
-
-  console.log('[Recommendations API] Deduplication:', {
-    before: candidates.length,
-    after: deduplicated.length,
-    duplicatesRemoved: candidates.length - deduplicated.length
   });
 
   return deduplicated;
@@ -192,7 +186,7 @@ export async function POST(request: Request) {
     }
 
     // Validate enums
-    const validGoals = ['high-protein', 'low-cal', 'balanced', 'low-carb'];
+    const validGoals = ['high-protein', 'low-calorie', 'balanced', 'low-carb', 'high-fiber', 'heart-healthy', 'energy-boost', 'weight-loss', 'muscle-gain', 'clean-eating'];
     const validTimeOfDay = ['breakfast', 'lunch', 'dinner', 'snack'];
     const validActivityLevel = ['sedentary', 'light', 'workout', null];
     const validHeaviness = ['light', 'medium', 'heavy', null];
@@ -256,13 +250,7 @@ export async function POST(request: Request) {
       );
       restaurants = result.restaurants;
       menuItems = result.menuItems;
-      console.log('[Recommendations API] Fetched data:', {
-        restaurantsCount: restaurants.length,
-        menuItemsCount: menuItems.length
-      });
     } catch (dbError: any) {
-      console.error('[Recommendations API] Database error:', dbError);
-      
       // Check if it's a network/DNS error
       const isNetworkError = 
         dbError.message === 'NETWORK_ERROR' ||
@@ -275,7 +263,6 @@ export async function POST(request: Request) {
       
       if (isNetworkError) {
         // Return graceful fallback instead of error
-        console.warn('[Recommendations API] Network error detected, returning empty results with guidance');
         const contextObj = generateContextGuidance(normalizedRequest);
         // Extract guidance text - the function returns { guidancePreview: string, avoidChips: string[] }
         const guidanceText = contextObj && typeof contextObj === 'object' && 'guidancePreview' in contextObj
@@ -299,13 +286,6 @@ export async function POST(request: Request) {
     }
 
     if (restaurants.length === 0 || menuItems.length === 0) {
-      console.warn('[Recommendations API] No restaurants or menu items found:', {
-        restaurantsCount: restaurants.length,
-        menuItemsCount: menuItems.length,
-        lat: normalizedRequest.lat,
-        lng: normalizedRequest.lng,
-        radius: normalizedRequest.radiusMiles
-      });
       const contextObj = generateContextGuidance(normalizedRequest);
       return Response.json({
         context: contextObj.guidancePreview,
@@ -359,49 +339,21 @@ export async function POST(request: Request) {
     // Try Hugging Face ranking, fallback to local
     let results: RecommendationResult[];
     try {
-      console.log('[Recommendations API] ===== USING HUGGING FACE API =====');
-      console.log('[Recommendations API] Attempting Hugging Face ranking with', scoredCandidates.length, 'candidates');
-      console.log('[Recommendations API] API Key check:', {
-        hasHuggingFaceKey: !!(process.env.HUGGING_FACE_API_KEY || process.env.HUGGINGFACE_API_KEY),
-        hasPublicKey: !!(process.env.EXPO_PUBLIC_HUGGINGFACE_API_KEY || process.env.EXPO_PUBLIC_HUGGING_FACE_API_KEY),
-        model: process.env.HUGGINGFACE_MODEL || 'mistralai/Mistral-7B-Instruct-v0.2'
-      });
-      
       if (scoredCandidates.length === 0) {
-        console.warn('[Recommendations API] WARNING: No candidates to rank! This means no restaurants/menu items were found.');
-        console.warn('[Recommendations API] This is likely because the database is empty or the query returned no results.');
         results = [];
       } else {
         results = await rankWithOpenAI(scoredCandidates, normalizedRequest);
-        console.log('[Recommendations API] ✅ Hugging Face ranking succeeded, got', results.length, 'results');
       }
-    } catch (error: any) {
-      console.error('[Recommendations API] ❌ Hugging Face ranking failed:', error.message);
-      console.error('[Recommendations API] Error details:', {
-        message: error.message,
-        stack: error.stack?.substring(0, 300),
-        name: error.name
-      });
-      console.log('[Recommendations API] Falling back to local ranking...');
+    } catch {
       results = localRankRecommendations(
         restaurants,
         menuItems,
         normalizedRequest
       );
-      console.log('[Recommendations API] Local fallback completed, got', results.length, 'results');
     }
 
     // Generate context guidance
     const contextObj = generateContextGuidance(normalizedRequest);
-    
-    console.log('[Recommendations API] Final response prepared:', {
-      resultsCount: results.length,
-      hasContext: !!contextObj.guidancePreview,
-      sampleResult: results[0] ? {
-        restaurant: results[0].restaurant.name,
-        item: results[0].item.name
-      } : null
-    });
 
     const response: RecommendationResponse = {
       context: contextObj.guidancePreview,
@@ -410,7 +362,6 @@ export async function POST(request: Request) {
 
     return Response.json(response);
   } catch (error: any) {
-    console.error('Recommendation API error:', error);
     return Response.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

@@ -1,26 +1,17 @@
+import { ErrorBoundaryProps, ErrorBoundaryState } from "@/type";
 import { Ionicons } from "@expo/vector-icons";
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, ErrorInfo } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 
-interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-}
-
-interface State {
-  hasError: boolean;
-  error: Error | null;
-}
-
-export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 

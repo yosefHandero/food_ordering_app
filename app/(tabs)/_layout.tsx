@@ -25,7 +25,7 @@ const TabBarIcon = memo(
     const scale = useSharedValue(1);
 
     useEffect(() => {
-      scale.value = withSpring(focused ? 1.1 : 1, { damping: 15 });
+      scale.value = withSpring(focused ? 1.08 : 1, { damping: 18, stiffness: 300 });
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [focused]);
 
@@ -96,12 +96,12 @@ export default function TabLayout() {
           ...Platform.select({
             ios: {
               shadowColor: "#000",
-              shadowOffset: { width: 0, height: -4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 12,
+              shadowOffset: { width: 0, height: -2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 16,
             },
             android: {
-              elevation: 12,
+              elevation: 8,
             },
           }),
         },

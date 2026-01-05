@@ -1,6 +1,7 @@
+import { SkeletonProps } from "@/type";
 import cn from "clsx";
 import React, { useEffect } from "react";
-import { DimensionValue, View } from "react-native";
+import { View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -8,14 +9,6 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
-
-interface SkeletonProps {
-  width?: DimensionValue;
-  height?: number;
-  borderRadius?: number;
-  className?: string;
-  variant?: "default" | "circular" | "rounded";
-}
 
 export const Skeleton: React.FC<SkeletonProps> = ({
   width = "100%",
